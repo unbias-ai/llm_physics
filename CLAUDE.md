@@ -26,6 +26,7 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 - **Files**: PascalCase for components (WarpUI.tsx), camelCase for utilities (formatData.ts)
 - **Tests**: ComponentName.test.tsx or __tests__/ComponentName.test.tsx
 - **Formatting**: Minimal, no emojis, no noise
+- **Conciseness**: Extreme brevity required. Sacrifice grammar for concision. Apply to all commits, messages, documentation
 
 ## Code Style
 
@@ -237,12 +238,12 @@ git show HEAD
 
 ### Development Workflow
 
-1. **Plan**: Break down feature/fix into testable steps
+1. **Plan**: Break down feature/fix into testable steps. End every plan with unresolved questions list (if any). Extreme concision required
 2. **Test**: Write tests first (TDD) or alongside implementation
 3. **Implement**: Write minimal code to pass tests
 4. **Verify**: Run tests, lint, build locally
-5. **Commit**: Clear commit messages with audit trail
-6. **PR**: Submit with description and checklist
+5. **Commit**: Extremely concise messages. Sacrifice grammar for brevity
+6. **PR**: Submit via GitHub CLI (`gh pr create`). Primary method for all GitHub ops
 7. **Review**: Automated + human review required
 8. **Deploy**: Automated deployment on merge to main
 
@@ -253,16 +254,27 @@ git show HEAD
 - PRs require passing CI and human approval
 - Protected branches enforce all checks
 
+### GitHub Operations
+
+**REQUIRED**: Use GitHub CLI (`gh`) as primary method for all GitHub interactions
+
+- **PRs**: `gh pr create`, `gh pr list`, `gh pr view`, `gh pr merge`
+- **Issues**: `gh issue create`, `gh issue list`, `gh issue view`, `gh issue close`
+- **Status**: `gh pr status`, `gh pr checks`
+- **Reviews**: `gh pr review`, `gh pr comment`
+
+Do NOT use web URLs or manual processes. CLI ensures reproducibility + audit trail
+
 ### Commit Messages
 
-- Use conventional commits format
-- Clear, descriptive messages
+- Conventional commits format
+- Extreme concision. Sacrifice grammar
 - Reference issues/PRs when applicable
 - Examples:
-  - `feat: add warp-ui visualization component`
-  - `fix: resolve coverage reporting in CI`
-  - `docs: update CLAUDE.md with new audit policy`
-  - `test: add E2E tests for deployment flow`
+  - `feat: warp-ui viz component`
+  - `fix: CI coverage report`
+  - `docs: CLAUDE.md audit policy`
+  - `test: E2E deploy flow`
 
 ## Agentic Orchestration
 
