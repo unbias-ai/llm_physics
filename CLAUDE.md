@@ -385,10 +385,15 @@ Do NOT use web URLs or manual processes. CLI ensures reproducibility + audit tra
       - `[ -s coverage/lcov.info ]` - File non-empty
       - `head -1 coverage/lcov.info` - Starts with `TN:` or `SF:`
       - `[ -f coverage/coverage-summary.json ]` - Summary exists
-   5. `npm run build` - Build must succeed
+   5. **Security audit workflows** - MUST verify:
+      - NO checkout of PR head in privileged workflows
+      - NO `ref: ${{ github.event.pull_request.head.ref }}` with write permissions
+      - NO execution of untrusted code (package.json, build scripts)
+      - Grep workflows: `grep -r "pull_request.head" .github/workflows/`
+   6. `npm run build` - Build must succeed
 
    **If Playwright tests added**:
-   6. Verify `npm run test:a11y` would pass in CI (can't run locally without server)
+   7. Verify `npm run test:a11y` would pass in CI (can't run locally without server)
 
    **Enforcement**:
    - Agent MUST NOT commit until all checks pass
