@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "jest.config.js",
     "jest.setup.js",
     "mocks/**",
+    // Coverage reports:
+    "coverage/**",
   ]),
 ]);
 

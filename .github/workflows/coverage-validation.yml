@@ -1,0 +1,100 @@
+name: Coverage Validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  validate-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Validate coverage artifacts exist
+        run: |
+          echo "=== Validating coverage artifacts ==="
+
+          # Check lcov.info exists
+          if [ ! -f coverage/lcov.info ]; then
+            echo "❌ ERROR: coverage/lcov.info not found"
+            exit 1
+          fi
+          echo "✅ lcov.info exists"
+
+          # Check lcov.info is non-empty
+          if [ ! -s coverage/lcov.info ]; then
+            echo "❌ ERROR: coverage/lcov.info is empty"
+            exit 1
+          fi
+          SIZE=$(wc -c < coverage/lcov.info)
+          echo "✅ lcov.info is non-empty ($SIZE bytes)"
+
+          # Check lcov.info has valid format
+          FIRST_LINE=$(head -n 1 coverage/lcov.info)
+          if [[ "$FIRST_LINE" != TN:* ]] && [[ "$FIRST_LINE" != SF:* ]]; then
+            echo "❌ ERROR: lcov.info has invalid format"
+            echo "First line: $FIRST_LINE"
+            echo "Expected: TN: or SF:"
+            exit 1
+          fi
+          echo "✅ lcov.info has valid format ($FIRST_LINE)"
+
+          # Check coverage-summary.json exists
+          if [ ! -f coverage/coverage-summary.json ]; then
+            echo "❌ ERROR: coverage-summary.json not found"
+            exit 1
+          fi
+          echo "✅ coverage-summary.json exists"
+
+      - name: Validate coverage threshold (80%)
+        run: |
+          echo "=== Validating coverage threshold ==="
+
+          # Use Node.js to parse JSON
+          node -e "
+            const fs = require('fs');
+            const coverage = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+            const total = coverage.total;
+
+            const threshold = 80;
+            const metrics = ['lines', 'statements', 'functions', 'branches'];
+            let failed = false;
+
+            metrics.forEach(metric => {
+              const pct = total[metric].pct;
+              const status = pct >= threshold ? '✅' : '❌';
+              console.log(\`\${status} \${metric}: \${pct}% (threshold: \${threshold}%)\`);
+              if (pct < threshold) {
+                failed = true;
+              }
+            });
+
+            if (failed) {
+              console.log('❌ Coverage below 80% threshold');
+              process.exit(1);
+            } else {
+              console.log('✅ All metrics meet or exceed 80% threshold');
+            }
+          "
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-validation-report
+          path: coverage/
+          retention-days: 30
