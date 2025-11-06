@@ -1,0 +1,52 @@
+# PROJECT_REFERENCES.yaml
+# Static context loaded once per agent session
+# Token cost: ~200 tokens
+# Version: 2.0
+# Created: 2025-11-06
+
+stack:
+  framework: Next.js 22.x
+  styling: Tailwind CSS
+  testing: Jest + Playwright
+  ci_cd: GitHub Actions
+  deployment: Vercel
+  node: 22.x
+
+mandates:
+  coverage_threshold: 80
+  emoji_enforcement: true
+  diff_only_commits: true
+  security_audit: required
+  pre_commit_checks:
+    - lint
+    - test
+    - coverage
+    - build
+    - security
+
+routing_rules:
+  "app/*.tsx":
+    - test-worker
+    - accessibility-worker
+  ".github/workflows/*.yml":
+    - security-auditor
+  "jest.config.js":
+    - coverage-validator
+  "tests/*.test.ts":
+    - test-generation-worker
+  "*.md":
+    - linter-fixer
+
+performance_targets:
+  ci_total_time_sec: 60
+  coverage_minimum_pct: 80
+  lighthouse_score: 95
+  a11y_violations: 0
+  security_violations: 0
+  max_commits_per_feature: 3
+
+current_state:
+  open_prs: 1
+  main_branch_commit: 58155d9
+  deployments: 6
+  all_deployments_status: READY

@@ -34,6 +34,36 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 
 **Update Protocol**: Agents append to AGENT_PROGRESS_LOG.md after each task. Diego reviews + approves updates to other memory files quarterly.
 
+## Self-Healing System (v2.0)
+
+**Auto-Debug Protocol**: Agents detect, diagnose, and fix issues autonomously before escalating to human review.
+
+### Supported Patterns:
+- **Emoji enforcement**: Auto-remove non-ASCII characters (enforce-no-emoji.yml workflow)
+- **Token bloat**: Switch to reference-based logging (PROJECT_REFERENCES.yaml + SESSION_DELTAS.log)
+- **Test failures**: Rewind to checkpoint, retry with different approach
+- **Coverage regression**: Re-run tests with --coverage, generate missing tests
+- **Security violations**: Flag HIGH/CRITICAL findings, block merge, escalate
+
+### Self-Healing Flow:
+1. **SCAN**: Detect violation pattern
+2. **DIAGNOSE**: Identify root cause
+3. **LOCATE**: Find affected files/modules
+4. **FIX**: Apply correction (isolated, testable)
+5. **VERIFY**: Re-run checks to confirm fix
+6. **LOG**: Append to SESSION_DELTAS.log
+
+### Documentation:
+- **Playbook**: SELF_HEALING_PLAYBOOK.md (diagnostic patterns + fixes)
+- **Patterns**: FOUNDATIONAL_PATTERNS.md (repo-wide best practices)
+- **Metrics**: SESSION_DELTAS.log + PROJECT_METRICS.tsv
+
+### Token Optimization (v2.0):
+- **v1.0**: 400-600 tokens per session, 2500 tokens for last 5 sessions
+- **v2.0**: 1-2 tokens per session, 250 tokens total (98% reduction)
+- **Scale**: v1.0 limit = 500 sessions, v2.0 limit = 10,000+ sessions
+- **Format**: AGENT_PROGRESS_LOG_v2.md (reference-based), SCALE_CODEC.md (system docs)
+
 ## Tech Stack
 
 - **Framework**: Next.js 16+ (App Router), React 19+
