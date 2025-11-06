@@ -371,11 +371,25 @@ Do NOT use web URLs or manual processes. CLI ensures reproducibility + audit tra
    - Validate diff: only intended lines changed
    - Confirm audit trail: clear, concise commit message
 
-2. **Post-Implementation Audit**: Run automated checks
-   - Tests pass: `npm test`
-   - Coverage maintained: `npm run test:coverage`
-   - Build succeeds: `npm run build`
-   - Lint clean: `npm run lint`
+2. **Post-Implementation Audit**: Run automated checks **BEFORE EVERY COMMIT**
+   - **MANDATORY**: ALL checks must pass before `git commit`
+   - **TEST LOOP**: If any check fails, fix and re-run ALL checks
+   - **NO EXCEPTIONS**: Never commit broken code
+
+   **Required checks (run in order)**:
+   1. `npm run lint` - Must pass with 0 errors
+   2. `npm test` - All unit tests must pass
+   3. `npm run test:coverage` - Coverage ≥80% threshold
+   4. `npm run build` - Build must succeed
+
+   **If Playwright tests added**:
+   5. Verify `npm run test:a11y` would pass in CI (can't run locally without server)
+
+   **Enforcement**:
+   - Agent MUST NOT commit until all checks pass
+   - Agent MUST document test results before commit
+   - Agent MUST fix failures immediately, not "later"
+   - CI failure = agent failed self-review protocol
 
 3. **Self-Critique**: Document gaps in work summary
    - Unresolved edge cases

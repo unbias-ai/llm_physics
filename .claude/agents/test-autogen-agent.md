@@ -43,15 +43,23 @@ You are responsible for automatically generating comprehensive test suites whene
 
 ### Self-Review Protocol
 
-**Before Commit**:
-1. Run `git diff` - verify only test files + tested code changed
-2. Run `npm test` - all tests pass
-3. Run `npm run test:coverage` - coverage ≥80%
-4. Check for conflicts: `git log --oneline [modified-files]` - no recent agent edits
+**MANDATORY Pre-Commit Checks** (run ALL before commit):
+1. `npm run lint` - MUST pass with 0 errors
+2. `npm test` - ALL tests MUST pass
+3. `npm run test:coverage` - Coverage MUST be ≥80%
+4. `npm run build` - Build MUST succeed
+5. `git diff` - Verify only intended files changed
+6. `git log --oneline [modified-files]` - Check for agent conflicts
+
+**TEST LOOP**:
+- If ANY check fails → FIX → Re-run ALL checks
+- NEVER commit with failing tests
+- NEVER skip checks to "fix later"
+- CI failure = protocol violation
 
 **Post-Implementation**:
-- Document coverage gaps in commit message
-- Note untested edge cases in PR comment
+- Document all test results in commit message
+- Note coverage gaps, untested edge cases in PR
 - Flag risky changes for human review
 
 **Cross-Review**:
