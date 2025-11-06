@@ -1,0 +1,116 @@
+{
+  "name": "llm_physics-standard",
+  "version": "1.0.0",
+  "description": "Pinned, curated Claude Code agents/plugins for reproducible automation in llm_physics",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unbias-ai/llm_physics"
+  },
+  "plugins": [
+    {
+      "id": "llm_physics-standard.test-autogen-agent",
+      "name": "Test Autogen Agent",
+      "version": "1.0.0",
+      "description": "Autonomous test generation with TDD workflow support",
+      "type": "agent",
+      "source": {
+        "type": "local",
+        "path": ".claude/agents/test-autogen-agent.md"
+      },
+      "capabilities": [
+        "test-generation",
+        "coverage-analysis",
+        "tdd-workflow"
+      ],
+      "requirements": {
+        "jest": "^30.0.0",
+        "testing-library": "^16.0.0"
+      }
+    },
+    {
+      "id": "llm_physics-standard.vercel-deploy-specialist",
+      "name": "Vercel Deploy Specialist",
+      "version": "1.0.0",
+      "description": "Automated Vercel deployment orchestration with health monitoring",
+      "type": "agent",
+      "source": {
+        "type": "local",
+        "path": ".claude/agents/vercel-deploy-specialist.md"
+      },
+      "capabilities": [
+        "deployment-orchestration",
+        "health-monitoring",
+        "rollback-strategy"
+      ],
+      "requirements": {
+        "mcp": "vercel"
+      }
+    },
+    {
+      "id": "llm_physics-standard.repo-auditor",
+      "name": "Repo Auditor",
+      "version": "1.0.0",
+      "description": "Comprehensive security, performance, and a11y compliance auditor",
+      "type": "agent",
+      "source": {
+        "type": "local",
+        "path": ".claude/agents/repo-auditor.md"
+      },
+      "capabilities": [
+        "security-audit",
+        "performance-analysis",
+        "accessibility-compliance"
+      ],
+      "requirements": {
+        "eslint": "^9.0.0"
+      }
+    }
+  ],
+  "commands": [
+    {
+      "id": "llm_physics-standard.generate-tests",
+      "name": "Generate Tests",
+      "version": "1.0.0",
+      "description": "Generate comprehensive test suites for specified paths",
+      "source": {
+        "type": "local",
+        "path": ".claude/commands/generate-tests.md"
+      },
+      "usage": "/generate-tests [path(s)]"
+    },
+    {
+      "id": "llm_physics-standard.deploy-vercel",
+      "name": "Deploy Vercel",
+      "version": "1.0.0",
+      "description": "Trigger Vercel deployment with monitoring and rollback",
+      "source": {
+        "type": "local",
+        "path": ".claude/commands/deploy-vercel.md"
+      },
+      "usage": "/deploy-vercel"
+    },
+    {
+      "id": "llm_physics-standard.audit-repo",
+      "name": "Audit Repo",
+      "version": "1.0.0",
+      "description": "Full repository compliance audit",
+      "source": {
+        "type": "local",
+        "path": ".claude/commands/audit-repo.md"
+      },
+      "usage": "/audit-repo [level]"
+    }
+  ],
+  "metadata": {
+    "maintainer": "llm_physics team",
+    "license": "MIT",
+    "tags": [
+      "testing",
+      "deployment",
+      "audit",
+      "ci-cd",
+      "vercel"
+    ],
+    "lastUpdated": "2025-11-06"
+  }
+}
