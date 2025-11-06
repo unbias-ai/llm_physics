@@ -35,11 +35,28 @@ jobs:
         run: npm run test:coverage
         continue-on-error: true
 
+      - name: Check coverage files exist
+        id: coverage-files
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            echo "lcov_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "lcov_exists=false" >> $GITHUB_OUTPUT
+          fi
+          if [ -f coverage/coverage-summary.json ]; then
+            echo "summary_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "summary_exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Generate coverage report
+        if: steps.coverage-files.outputs.lcov_exists == 'true'
         id: coverage
         run: |
           echo "COVERAGE_REPORT<<EOF" >> $GITHUB_OUTPUT
-          cat coverage/lcov.info | head -50 >> $GITHUB_OUTPUT
+          if [ -f coverage/lcov.info ]; then
+            cat coverage/lcov.info | head -50 >> $GITHUB_OUTPUT
+          fi
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Post coverage summary

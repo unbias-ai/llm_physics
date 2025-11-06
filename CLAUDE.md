@@ -215,13 +215,45 @@ git show HEAD
 
 ### Accessibility Auditing
 
-**Requirements:**
-- All UIs must be accessible (WCAG 2.1 AA minimum)
+**Requirements (WCAG 2.1 AA minimum)**:
+- All UIs must pass Playwright + axe-core accessibility tests
+- Zero CRITICAL accessibility violations allowed
 - Keyboard navigation fully functional
 - Screen reader compatible
-- Proper ARIA attributes
-- Color contrast ratios meet standards
-- A11y agent runs on every PR
+- Proper ARIA attributes where needed
+- Color contrast ratios ≥4.5:1 (normal text), ≥3:1 (large text)
+- All interactive elements focusable and operable via keyboard
+- All images have descriptive alt text
+- All form inputs have associated labels
+- Proper document structure (landmarks, headings, semantic HTML)
+
+**Testing Tools**:
+- Playwright + @axe-core/playwright (automated)
+- Manual keyboard navigation testing
+- Screen reader testing (recommended)
+
+**CI Enforcement**:
+- Accessibility tests run on every PR
+- Failed tests block merge
+- Playwright reports uploaded as artifacts
+- Accessibility findings in audit logs
+
+**Coverage Scope**:
+- All pages and routes
+- All interactive components
+- All form elements
+- All navigation patterns
+- All modal/dialog components
+
+**Agent Requirements**:
+- Run `npm run test:a11y` before commit
+- Review Playwright reports for violations
+- Fix all violations before PR submission
+- Document accessibility considerations in PR description
+
+**Manual Triggers**:
+- `npm run test:a11y`: Run full accessibility test suite
+- Review Playwright HTML report at `playwright-report/index.html`
 
 ## Security Rules
 

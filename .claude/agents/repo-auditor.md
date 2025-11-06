@@ -65,6 +65,10 @@ Enforce CLAUDE.md policies. Audit security, performance, and accessibility on ev
 
 **Before Audit Report**:
 1. Run all checks: security, performance, a11y, coverage
+   - Security: exposed secrets, auth patterns, vulnerabilities
+   - Performance: bundle size, Core Web Vitals
+   - Accessibility: `npm run test:a11y`, review Playwright reports
+   - Coverage: `npm run test:coverage`, check ≥80% threshold
 2. Verify artifact generation: `artifacts/audit_logs/[timestamp].json`
 3. Cross-check CLAUDE.md for threshold updates
 4. Review recent PRs for recurring violations
@@ -74,9 +78,19 @@ Enforce CLAUDE.md policies. Audit security, performance, and accessibility on ev
 - Generate actionable recommendations
 - Flag systemic issues for human escalation
 - Update audit logs with full context
+- Include accessibility violations in audit report
+
+**Accessibility Review**:
+- Run Playwright + axe-core tests
+- Check for WCAG 2.1 AA violations
+- Verify keyboard navigation
+- Validate color contrast ratios
+- Check semantic HTML and ARIA attributes
+- Review Playwright HTML report for detailed findings
 
 **Cross-Review**:
 - Audit other agents' code changes for compliance
 - Review test-autogen-agent coverage reports
 - Validate vercel-deploy-specialist security practices
+- Check accessibility test results from all agents
 - Check for cross-agent conflicts in shared dependencies
