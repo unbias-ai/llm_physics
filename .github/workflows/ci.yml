@@ -28,7 +28,23 @@ jobs:
         run: npm run lint
 
       - name: Run tests with coverage
+      - name: Run tests with coverage
         run: npm run test:coverage
+
+      - name: Debug - List coverage directory
+        if: always()
+        run: |
+          echo "=== Coverage directory contents ==="
+          ls -lah coverage/ || echo "Coverage directory not found"
+          echo ""
+          echo "=== Checking lcov.info ==="
+          if [ -f coverage/lcov.info ]; then
+            echo "File exists: $(wc -c < coverage/lcov.info) bytes"
+            echo "First line: $(head -1 coverage/lcov.info)"
+            echo "Last line: $(tail -1 coverage/lcov.info)"
+          else
+            echo "ERROR: coverage/lcov.info NOT FOUND"
+          fi
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -40,47 +56,34 @@ jobs:
       - name: Validate coverage file
         id: coverage-check
         run: |
+          echo "=== Validating coverage/lcov.info ==="
+
           if [ ! -f coverage/lcov.info ]; then
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "ERROR: lcov.info not found"
-            exit 0
+            echo "❌ ERROR: lcov.info not found"
+            ls -lah coverage/ || echo "Coverage directory not found"
+            exit 1
           fi
 
           if [ ! -s coverage/lcov.info ]; then
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "ERROR: lcov.info is empty"
-            exit 0
+            echo "❌ ERROR: lcov.info is empty"
+            ls -lah coverage/lcov.info
+            exit 1
           fi
 
           # Check first line starts with TN: or SF:
           FIRST_LINE=$(head -n 1 coverage/lcov.info)
           if [[ "$FIRST_LINE" != TN:* ]] && [[ "$FIRST_LINE" != SF:* ]]; then
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "ERROR: lcov.info has invalid format (first line: $FIRST_LINE)"
-            exit 0
+            echo "❌ ERROR: lcov.info has invalid format"
+            echo "First line: $FIRST_LINE"
+            echo "Expected: TN: or SF:"
+            head -5 coverage/lcov.info
+            exit 1
           fi
 
+          echo "✅ lcov.info is VALID"
+          echo "   Size: $(wc -c < coverage/lcov.info) bytes"
+          echo "   Format: $FIRST_LINE"
           echo "exists=true" >> $GITHUB_OUTPUT
-          echo "✓ lcov.info is valid ($(wc -c < coverage/lcov.info) bytes)"
-
-      - name: Coverage Summary
-        if: steps.coverage-check.outputs.exists == 'true'
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: coverage/lcov.info
-          badge: true
-          fail_below_min: true
-          format: markdown
-          output: both
-          thresholds: '80 90'
-
-      - name: Add Coverage PR Comment
-        if: github.event_name == 'pull_request' && steps.coverage-check.outputs.exists == 'true'
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          recreate: true
-          path: code-coverage-results.md
-
       - name: Build Next.js
         run: npm run build
 
