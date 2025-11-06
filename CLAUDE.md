@@ -380,10 +380,15 @@ Do NOT use web URLs or manual processes. CLI ensures reproducibility + audit tra
    1. `npm run lint` - Must pass with 0 errors
    2. `npm test` - All unit tests must pass
    3. `npm run test:coverage` - Coverage ≥80% threshold
-   4. `npm run build` - Build must succeed
+   4. **Validate coverage artifacts** - MUST verify:
+      - `[ -f coverage/lcov.info ]` - File exists
+      - `[ -s coverage/lcov.info ]` - File non-empty
+      - `head -1 coverage/lcov.info` - Starts with `TN:` or `SF:`
+      - `[ -f coverage/coverage-summary.json ]` - Summary exists
+   5. `npm run build` - Build must succeed
 
    **If Playwright tests added**:
-   5. Verify `npm run test:a11y` would pass in CI (can't run locally without server)
+   6. Verify `npm run test:a11y` would pass in CI (can't run locally without server)
 
    **Enforcement**:
    - Agent MUST NOT commit until all checks pass

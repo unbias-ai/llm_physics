@@ -37,15 +37,31 @@ jobs:
           name: coverage-report
           path: coverage/
 
-      - name: Check coverage file exists
+      - name: Validate coverage file
         id: coverage-check
         run: |
-          if [ -f coverage/lcov.info ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
+          if [ ! -f coverage/lcov.info ]; then
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Warning: lcov.info not found"
+            echo "ERROR: lcov.info not found"
+            exit 0
           fi
+
+          if [ ! -s coverage/lcov.info ]; then
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "ERROR: lcov.info is empty"
+            exit 0
+          fi
+
+          # Check first line starts with TN: or SF:
+          FIRST_LINE=$(head -n 1 coverage/lcov.info)
+          if [[ "$FIRST_LINE" != TN:* ]] && [[ "$FIRST_LINE" != SF:* ]]; then
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "ERROR: lcov.info has invalid format (first line: $FIRST_LINE)"
+            exit 0
+          fi
+
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "✓ lcov.info is valid ($(wc -c < coverage/lcov.info) bytes)"
 
       - name: Coverage Summary
         if: steps.coverage-check.outputs.exists == 'true'
