@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# audit logs (keep directory structure but not actual logs)
+artifacts/audit_logs/*.json
+artifacts/audit_logs/*.jsonl

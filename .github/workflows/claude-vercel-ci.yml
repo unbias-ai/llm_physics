@@ -1,0 +1,180 @@
+name: Claude Vercel Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - preview
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+
+jobs:
+  pre_deploy_checks:
+    runs-on: ubuntu-latest
+    outputs:
+      checks_passed: ${{ steps.final_check.outputs.passed }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        id: test
+        run: npm run test
+
+      - name: Run lint
+        id: lint
+        run: npm run lint
+
+      - name: Build application
+        id: build
+        run: npm run build
+
+      - name: Final check
+        id: final_check
+        run: |
+          if [ "${{ steps.test.outcome }}" == "success" ] && \
+             [ "${{ steps.lint.outcome }}" == "success" ] && \
+             [ "${{ steps.build.outcome }}" == "success" ]; then
+            echo "passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "passed=false" >> $GITHUB_OUTPUT
+          fi
+
+  vercel_deploy:
+    needs: pre_deploy_checks
+    if: needs.pre_deploy_checks.outputs.checks_passed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create deployment record
+        uses: actions/github-script@v7
+        id: create_deployment
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.ref,
+              environment: '${{ github.event.inputs.environment || 'production' }}',
+              required_contexts: [],
+              auto_merge: false
+            });
+            return deployment.data.id;
+
+      - name: Log deployment start
+        run: |
+          mkdir -p artifacts/audit_logs
+          cat > artifacts/audit_logs/deploy-$(date +%Y%m%d-%H%M%S).json <<EOF
+          {
+            "timestamp": "$(date -Iseconds)",
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "environment": "${{ github.event.inputs.environment || 'production' }}",
+            "deployment_id": "${{ steps.create_deployment.outputs.result }}",
+            "status": "started"
+          }
+          EOF
+
+      - name: Note about Vercel deployment
+        run: |
+          echo "=============================================="
+          echo "Vercel MCP Integration Notice"
+          echo "=============================================="
+          echo ""
+          echo "This workflow creates a deployment record for tracking."
+          echo "Actual Vercel deployment would be triggered via MCP tools."
+          echo ""
+          echo "To enable full Vercel integration:"
+          echo "1. Install Vercel CLI or configure MCP server"
+          echo "2. Add VERCEL_TOKEN to GitHub Secrets"
+          echo "3. Add VERCEL_PROJECT_ID to GitHub Secrets"
+          echo "4. Update .mcp.json with deploy permissions"
+          echo ""
+          echo "Current deployment record: ${{ steps.create_deployment.outputs.result }}"
+          echo "=============================================="
+
+      - name: Update deployment status
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const deploymentId = ${{ steps.create_deployment.outputs.result }};
+            const state = 'success'; // Would be based on actual deployment
+
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deploymentId,
+              state: state,
+              description: 'Deployment tracked (MCP integration pending)',
+              environment_url: 'https://llm-physics.vercel.app' // Placeholder
+            });
+
+      - name: Upload deployment log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deployment-log
+          path: artifacts/audit_logs/
+          retention-days: 90
+
+  post_deploy_audit:
+    needs: vercel_deploy
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create post-deployment audit
+        run: |
+          mkdir -p artifacts/audit_logs
+          cat > artifacts/audit_logs/post-deploy-audit-$(date +%Y%m%d-%H%M%S).json <<EOF
+          {
+            "timestamp": "$(date -Iseconds)",
+            "commit": "${{ github.sha }}",
+            "deployment_result": "${{ needs.vercel_deploy.result }}",
+            "checks": {
+              "pre_deploy": "${{ needs.pre_deploy_checks.result }}",
+              "deploy": "${{ needs.vercel_deploy.result }}"
+            },
+            "next_steps": [
+              "Configure Vercel MCP integration",
+              "Enable performance monitoring",
+              "Set up rollback automation"
+            ]
+          }
+          EOF
+
+      - name: Upload final audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-deploy-audit
+          path: artifacts/audit_logs/
+          retention-days: 90

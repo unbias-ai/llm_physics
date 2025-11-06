@@ -1,0 +1,41 @@
+{
+  "description": "Claude Code orchestration settings for llm_physics - agentic automation, reproducibility, and CI/CD",
+  "extraKnownMarketplaces": [
+    {
+      "name": "llm_physics-standard",
+      "url": "https://raw.githubusercontent.com/unbias-ai/llm_physics/main/.claude-plugin/marketplace.json",
+      "trusted": true
+    }
+  ],
+  "enabledPlugins": [],
+  "requireRepoTrust": true,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "message",
+        "message": "Session started. CLAUDE.md policies active. Reproducibility, audit, and CI/CD enforcement enabled."
+      }
+    ],
+    "stop": [
+      {
+        "type": "message",
+        "message": "Session ended. Ensure all changes are tested and committed with clear audit trail."
+      }
+    ]
+  },
+  "statusline": {
+    "enabled": false,
+    "message": "llm_physics | Next.js + Tailwind | Agentic Orchestration Active"
+  },
+  "context": {
+    "alwaysInclude": [
+      "CLAUDE.md"
+    ]
+  },
+  "conventions": {
+    "naming": "lowercase-hyphenated (warp-ui, audit-console, orb-panel)",
+    "testing": "Jest for unit, RTL for components, Playwright for E2E",
+    "coverage": ">95% required",
+    "formatting": "minimal, no emojis, no noise"
+  }
+}

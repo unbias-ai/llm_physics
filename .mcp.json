@@ -1,0 +1,66 @@
+{
+  "description": "Model Context Protocol (MCP) server configurations for llm_physics",
+  "version": "1.0.0",
+  "servers": {
+    "vercel": {
+      "name": "Vercel MCP Server",
+      "description": "Integration with Vercel for deployment orchestration and monitoring",
+      "url": "https://mcp.vercel.com",
+      "oauth": true,
+      "enabled": true,
+      "permissions": {
+        "read": true,
+        "write": false,
+        "deploy": false
+      },
+      "allowed_tools": [
+        "vercel-list-all-deployments",
+        "vercel-get-deployment",
+        "vercel-list-environments"
+      ],
+      "notes": [
+        "Initial configuration uses read-only permissions",
+        "Deployment permissions require explicit CI gates and audit",
+        "OAuth token must be configured via environment variables",
+        "Never commit tokens or secrets to repository"
+      ]
+    }
+  },
+  "security": {
+    "require_oauth": true,
+    "audit_all_calls": true,
+    "audit_log_path": "artifacts/audit_logs/mcp_calls.jsonl",
+    "allowed_networks": [
+      "https://mcp.vercel.com"
+    ]
+  },
+  "policies": {
+    "rate_limiting": {
+      "enabled": true,
+      "max_calls_per_minute": 60
+    },
+    "timeout": {
+      "connection_timeout_ms": 5000,
+      "request_timeout_ms": 30000
+    },
+    "retry": {
+      "enabled": true,
+      "max_retries": 3,
+      "backoff_multiplier": 2
+    }
+  },
+  "environment": {
+    "required_variables": [
+      "VERCEL_TOKEN",
+      "VERCEL_PROJECT_ID"
+    ],
+    "optional_variables": [
+      "VERCEL_TEAM_ID"
+    ]
+  },
+  "documentation": {
+    "setup_guide": "See .claude/agents/vercel-deploy-specialist.md for setup instructions",
+    "security_policy": "All MCP calls are logged for audit compliance",
+    "upgrade_path": "To enable write/deploy permissions, update this config and pass CI review"
+  }
+}
