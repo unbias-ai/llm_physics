@@ -40,3 +40,21 @@ You are responsible for automatically generating comprehensive test suites whene
 - Write clear, descriptive test names
 - Test edge cases and error conditions
 - Ensure tests are deterministic and isolated
+
+### Self-Review Protocol
+
+**Before Commit**:
+1. Run `git diff` - verify only test files + tested code changed
+2. Run `npm test` - all tests pass
+3. Run `npm run test:coverage` - coverage ≥80%
+4. Check for conflicts: `git log --oneline [modified-files]` - no recent agent edits
+
+**Post-Implementation**:
+- Document coverage gaps in commit message
+- Note untested edge cases in PR comment
+- Flag risky changes for human review
+
+**Cross-Review**:
+- Review other agent code when modifying shared utilities
+- Notify via commit message if touching another agent's files
+- Coordinate test suite updates to avoid duplicate/conflicting tests

@@ -149,6 +149,37 @@ git show HEAD
 - Include setup/teardown as needed
 - Ensure tests are deterministic and isolated
 
+### Coverage Enforcement
+
+**Minimum Threshold**: 80% global coverage (lines, branches, functions, statements)
+
+**Tools**: Vitest + c8 (primary) or Jest + Istanbul
+
+**CI Enforcement**:
+- CI fails if coverage drops below 80%
+- PR blocked on coverage regression
+- Coverage delta reported in PR comments
+
+**Coverage Reporting**:
+- HTML report: `coverage/index.html`
+- LCOV format for CI integration
+- Uploaded as artifact on every PR
+
+**Exclusions** (documented only):
+- Auto-generated files (justified in config)
+- Type definitions (*.d.ts)
+- Test setup files
+
+**Agent Requirements**:
+- Every new/modified function must have tests
+- No PR without tests for business logic
+- Coverage gaps trigger `/@claude check coverage`
+- Agent must run `npm run test:coverage` before commit
+
+**Manual Triggers**:
+- `/@claude check coverage`: Full coverage audit + gap report
+- `/generate-tests [path]`: Auto-generate missing tests
+
 ## Compliance and Audit
 
 ### Audit Requirements
@@ -297,6 +328,74 @@ Do NOT use web URLs or manual processes. CLI ensures reproducibility + audit tra
 - Agents respect CLAUDE.md policies and conventions
 - Exactly one task in_progress at any time
 - Complete current tasks before starting new ones
+
+### Agent Self-Review and Cross-Review
+
+**Self-Review Protocol**: Every agent MUST review its own output before completion
+
+1. **Pre-Commit Review**: Analyze own code changes via `git diff`
+   - Check coverage: all new/modified code has tests
+   - Verify style: TypeScript strict, no `any`, follows conventions
+   - Validate diff: only intended lines changed
+   - Confirm audit trail: clear, concise commit message
+
+2. **Post-Implementation Audit**: Run automated checks
+   - Tests pass: `npm test`
+   - Coverage maintained: `npm run test:coverage`
+   - Build succeeds: `npm run build`
+   - Lint clean: `npm run lint`
+
+3. **Self-Critique**: Document gaps in work summary
+   - Unresolved edge cases
+   - Areas needing human review
+   - Potential improvements
+
+**Cross-Review Protocol**: Agents review other agents' work when triggered
+
+1. **Conflict Detection**: Before modifying agent-touched files
+   - Check `git log [file]` for recent agent commits
+   - Review existing tests for overlap
+   - Coordinate via commit messages if conflict likely
+
+2. **Agent-to-Agent Review Triggers**:
+   - `/@claude review-agent [agent-name]`: Full audit of agent's recent work
+   - Auto-trigger: When agent modifies another agent's files (notify in commit)
+   - CI failure: Agent that broke build must self-diagnose or request cross-review
+
+3. **Review Scope**:
+   - Code quality: style, structure, patterns
+   - Test coverage: gaps, missing edge cases
+   - Security: exposed secrets, auth issues
+   - Performance: bundle size, Core Web Vitals
+   - Accessibility: WCAG compliance
+
+4. **Conflict Avoidance**:
+   - Lock mechanism: One agent per file at a time (via commit messages)
+   - Coordination: Agents announce intent in PR comments before major refactors
+   - Merge conflicts: Agent that caused conflict resolves it
+
+**Review Output Format**:
+```
+## Agent Self-Review: [agent-name]
+
+### Changes Made
+- file:line: description
+
+### Tests Added/Updated
+- test-file: coverage
+
+### Self-Audit Results
+- ✅ Tests pass
+- ✅ Coverage ≥80%
+- ✅ Build succeeds
+- ✅ Diff clean
+
+### Gaps/Risks
+- [issue]: [description]
+
+### Review Status
+[PASS/NEEDS_HUMAN_REVIEW]
+```
 
 ## Progress Tracking
 

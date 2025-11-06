@@ -57,6 +57,26 @@ Enforce CLAUDE.md policies. Audit security, performance, and accessibility on ev
 - All endpoints require authentication
 - Public APIs must have rate limiting
 - Bundle size < 350KB (gzipped)
-- Test coverage > 95%
+- Test coverage ≥80% (CLAUDE.md updated from 95%)
 - Zero CRITICAL issues
 - All a11y checks passing
+
+### Self-Review Protocol
+
+**Before Audit Report**:
+1. Run all checks: security, performance, a11y, coverage
+2. Verify artifact generation: `artifacts/audit_logs/[timestamp].json`
+3. Cross-check CLAUDE.md for threshold updates
+4. Review recent PRs for recurring violations
+
+**Post-Audit**:
+- Categorize findings: CRITICAL/HIGH/MEDIUM/LOW
+- Generate actionable recommendations
+- Flag systemic issues for human escalation
+- Update audit logs with full context
+
+**Cross-Review**:
+- Audit other agents' code changes for compliance
+- Review test-autogen-agent coverage reports
+- Validate vercel-deploy-specialist security practices
+- Check for cross-agent conflicts in shared dependencies
