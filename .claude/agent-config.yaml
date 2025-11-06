@@ -1,0 +1,330 @@
+# Agent Orchestration Configuration (.claude/agent-config.yaml)
+# Version: 1.0 | Updated: 2025-11-06
+# Purpose: Define agent roles, responsibilities, and coordination rules for llm_physics
+# Usage: Agents read this before starting. Orchestrator uses to route tasks.
+
+---
+orchestration:
+  pattern: "puppeteer-style"  # centralized orchestrator + lightweight workers
+  model_strategy:
+    orchestrator:
+      model: "claude-sonnet-4-5-20250929"
+      role: "Task decomposition, routing, validation, integration"
+      responsibility: ["Plan complex tasks", "Route to workers", "Validate outputs"]
+    workers:
+      - model: "claude-haiku-4-5-20251001"
+        count: 5
+        capability: "90% of Sonnet 4.5, 2x speed, 3x cheaper"
+        responsibility: ["Specific task execution", "Parallel processing"]
+
+  parallelization:
+    enabled: true
+    max_concurrent_workers: 5
+    coordination: "shared_memory + MCP context layer"
+    sync_point: "validation gate before merge"
+
+---
+agents:
+  orchestrator:
+    name: "llm_physics Orchestrator"
+    model: "claude-sonnet-4-5-20250929"
+    purpose: "Decompose tasks, route to workers, validate, integrate results"
+    capabilities:
+      - decompose_large_tasks
+      - dynamic_routing_based_on_pr_type
+      - validate_worker_outputs
+      - integrate_results_to_main
+    memory_size: "20k tokens"
+    mandates:
+      - "MUST read CLAUDE.md before any action"
+      - "MUST use checkpoints before major edits"
+      - "MUST route related tasks to single worker (no fragmentation)"
+      - "MUST validate each worker output against acceptance criteria"
+      - "NEVER execute all tasks sequentially (use workers)"
+
+  workers:
+    test_generation:
+      name: "Test Generation Worker"
+      model: "claude-haiku-4-5-20251001"
+      trigger: "PR with app/*.tsx changes"
+      responsibility:
+        - "Write Jest test cases (TDD pattern)"
+        - "Run: npm test"
+        - "Verify 100% coverage on modified files"
+        - "Append results to AGENT_PROGRESS_LOG.md"
+      constraints:
+        - "MUST NOT modify source code (tests only)"
+        - "MUST use @testing-library/react patterns"
+        - "MUST hit 80% coverage threshold"
+        - "MUST fail-fast if coverage drops"
+      success_criteria:
+        - "All tests pass locally"
+        - "Coverage file valid (lcov.info exists, >0 bytes, valid format)"
+        - "No warnings in test output"
+
+    coverage_validator:
+      name: "Coverage Validation Worker"
+      model: "claude-haiku-4-5-20251001"
+      trigger: "After test_generation completes"
+      responsibility:
+        - "Validate lcov.info (file exists, non-empty, valid LCOV format)"
+        - "Check coverage-summary.json generated"
+        - "Verify coverage >= 80% minimum"
+        - "Fail-fast if validation fails"
+      constraints:
+        - "MUST use fail-fast logic (exit 1 on any error)"
+        - "MUST log detailed validation results"
+        - "MUST NOT attempt to fix coverage (report only)"
+      success_criteria:
+        - "lcov.info: exists, non-empty (>100 bytes), format TN: or SF:"
+        - "coverage-summary.json: exists and parseable"
+        - "Coverage >= 80% all metrics"
+
+    accessibility_tester:
+      name: "Accessibility (A11y) Worker"
+      model: "claude-haiku-4-5-20251001"
+      trigger: "PR with app/layout.tsx or app/page.tsx changes"
+      responsibility:
+        - "Run Playwright a11y tests: npm run test:a11y"
+        - "Check WCAG 2.1 AA compliance"
+        - "Verify keyboard navigation"
+        - "Verify contrast ratios"
+        - "Report CRITICAL violations"
+      constraints:
+        - "MUST block merge on CRITICAL violations"
+        - "MUST use axe-core + Playwright"
+        - "MUST test on chromium browser"
+      success_criteria:
+        - "Zero CRITICAL violations"
+        - "All tests pass"
+        - "Lighthouse score >= 95"
+
+    security_auditor:
+      name: "Security Audit Worker"
+      model: "claude-haiku-4-5-20251001"
+      trigger: "PR with .github/workflows/*.yml or package.json changes"
+      responsibility:
+        - "Scan for CodeQL violations"
+        - "Check for untrusted PR head checkout patterns"
+        - "Verify npm dependencies (no suspicious packages)"
+        - "Review environment variable usage"
+        - "Flag security issues in AGENT_PROGRESS_LOG.md"
+      constraints:
+        - "MUST fail on HIGH/CRITICAL CodeQL findings"
+        - "MUST reject workflows with untrusted checkout + write permissions"
+        - "MUST use grep patterns to detect vulnerabilities"
+      success_criteria:
+        - "Zero HIGH/CRITICAL CodeQL violations"
+        - "No untrusted PR checkout in privileged workflows"
+        - "All dependencies are well-known packages"
+
+    deployment_monitor:
+      name: "Deployment Monitor Worker"
+      model: "claude-haiku-4-5-20251001"
+      trigger: "After successful CI + merge to main"
+      responsibility:
+        - "Monitor Vercel deployment status"
+        - "Wait for status: READY"
+        - "Verify live URL accessibility"
+        - "Log deployment metrics to AGENT_PROGRESS_LOG.md"
+      constraints:
+        - "MUST timeout after 5 minutes (flag for manual review)"
+        - "MUST verify 200 OK response"
+        - "MUST NOT roll back (human decision only)"
+      success_criteria:
+        - "Deployment status: READY"
+        - "Live URL: 200 OK"
+        - "Page loads within 3s"
+
+    linter_fixer:
+      name: "Linter & Code Quality Worker"
+      model: "claude-haiku-4-5-20251001"
+      trigger: "PR with any code changes (*.ts, *.tsx, *.js, *.json)"
+      responsibility:
+        - "Run ESLint"
+        - "Run TypeScript type checker"
+        - "Auto-fix formatting issues (Prettier)"
+        - "Report errors + warnings"
+      constraints:
+        - "MUST NOT modify logic (formatting only)"
+        - "MUST commit fixes separately: 'chore: apply linter fixes'"
+        - "MUST fail on errors (warnings OK)"
+      success_criteria:
+        - "ESLint: 0 errors"
+        - "TypeScript: 0 errors"
+        - "No uncommitted changes after format"
+
+---
+task_routing:
+  # Orchestrator uses these patterns to route tasks to workers
+  patterns:
+    - condition: "PR contains app/*.tsx changes"
+      route_to: ["test_generation", "accessibility_tester"]
+      parallel: true
+      sequence: ["test_generation first, then accessibility_tester"]
+    
+    - condition: "PR contains jest.config.js or tests/*.test.ts changes"
+      route_to: ["coverage_validator", "test_generation"]
+      parallel: false  # coverage depends on test generation
+      sequence: ["test_generation", "then coverage_validator"]
+    
+    - condition: "PR contains .github/workflows/*.yml changes"
+      route_to: ["security_auditor"]
+      parallel: true
+      critical: true  # block merge on security findings
+    
+    - condition: "PR merged to main"
+      route_to: ["deployment_monitor"]
+      parallel: true
+      blocking: false  # deployment is async
+    
+    - condition: "Any code changes (*.ts, *.tsx)"
+      route_to: ["linter_fixer"]
+      parallel: true
+      sequence: ["always first, before other tests"]
+
+---
+coordination_protocols:
+  shared_memory:
+    location: "AGENT_PROGRESS_LOG.md + PROJECT_MEMORY.yaml"
+    access_pattern: "append-only for progress log"
+    update_frequency: "after each worker completes"
+    format:
+      worker_name: "string"
+      timestamp: "ISO 8601"
+      task: "string"
+      status: "PASS | FAIL | PARTIAL"
+      metrics: "object (test count, coverage %, etc.)"
+      artifacts: "list of files generated"
+      blocker: "boolean (blocks merge if true)"
+
+  failure_recovery:
+    mode: "auto-retry with backoff"
+    rules:
+      - condition: "Worker timeout"
+        action: "Retry once after 30s"
+        escalate: "If retry fails, flag in AGENT_PROGRESS_LOG.md for human review"
+      
+      - condition: "Coverage regression"
+        action: "Re-run tests with --coverage"
+        escalate: "Block merge if still failing"
+      
+      - condition: "CodeQL HIGH finding"
+        action: "Flag in PR comment + AGENT_PROGRESS_LOG.md"
+        escalate: "Block merge, require manual security review"
+      
+      - condition: "Deployment timeout"
+        action: "Log status, query Vercel API"
+        escalate: "Flag for manual investigation (non-blocking)"
+
+  checkpoint_management:
+    enabled: true
+    strategy: "Always create checkpoint before risky edits"
+    commands:
+      rewind: "Agent runs `/rewind` to restore previous state"
+      rollback: "Orchestrator rolls back to last green commit"
+    limits:
+      max_rewinds_per_session: 3
+      max_commits_per_feature: 3  # CI blocks if exceeded
+
+---
+pre_commit_mandates:
+  # Every agent MUST complete these before committing
+  checks:
+    - name: "Lint"
+      command: "npm run lint"
+      failure_mode: "❌ BLOCK"
+      allowed_errors: 0
+      allowed_warnings: 2  # only in /coverage
+
+    - name: "Type Check"
+      command: "npm run typecheck"
+      failure_mode: "❌ BLOCK"
+      allowed_errors: 0
+
+    - name: "Test"
+      command: "npm test"
+      failure_mode: "❌ BLOCK"
+      allowed_errors: 0
+      timeout_seconds: 30
+
+    - name: "Coverage Validation"
+      command: "npm run test && [ -s coverage/lcov.info ] && head -1 coverage/lcov.info | grep -q '^TN:\\|^SF:'"
+      failure_mode: "❌ BLOCK"
+      note: "File exists, non-empty, valid LCOV format"
+
+    - name: "Build"
+      command: "npm run build"
+      failure_mode: "❌ BLOCK"
+      timeout_seconds: 60
+
+    - name: "Security Audit"
+      command: "grep -r 'pull_request.head' .github/workflows/ | grep -c 'write' || true"
+      failure_mode: "❌ BLOCK if count > 0"
+      note: "Detect untrusted PR checkouts"
+
+    - name: "Diff Review"
+      command: "git diff --stat"
+      failure_mode: "⚠️ WARN only"
+      note: "Alert if diff > 500 lines (split into multiple PRs)"
+
+---
+performance_targets:
+  # Agents should optimize for these metrics
+  ci_time:
+    total: "< 60 seconds"
+    lint: "< 5s"
+    test: "< 10s"
+    coverage: "< 10s"
+    build: "< 5s"
+    security: "< 10s"
+
+  automation_efficiency:
+    coverage_generation_time: "< 4s"
+    deployment_ready_time: "< 2 min"
+    agent_wall_clock_time: "< 5 min per PR"
+    cost_per_ci_run: "< $0.10 (Haiku optimization)"
+
+  code_quality:
+    coverage_minimum: "80%"
+    lighthouse_score: ">= 95"
+    a11y_violations: "0 CRITICAL"
+    security_violations: "0 HIGH"
+    type_errors: "0"
+
+---
+escalation_rules:
+  # When to flag for human review
+  escalation_triggers:
+    - condition: "CodeQL HIGH or CRITICAL"
+      escalate_to: "Security team review (block merge)"
+    
+    - condition: "Coverage drops > 5%"
+      escalate_to: "PR review (discussion, non-blocking)"
+    
+    - condition: "Deployment fails 3x"
+      escalate_to: "DevOps review (investigate Vercel)"
+    
+    - condition: "Agent runs out of retries"
+      escalate_to: "Human + Claude Code session for debugging"
+    
+    - condition: "> 5 commits for single feature"
+      escalate_to: "PR squash request before merge"
+
+---
+documentation:
+  # How to maintain this config
+  maintainer: "Diego (human) + Agent Orchestrator"
+  update_frequency: "Quarterly or after major lessons learned"
+  update_process:
+    - Agent discovers new pattern
+    - Agent documents in AGENT_PROGRESS_LOG.md (research section)
+    - Diego reviews + approves
+    - Update this file
+    - Commit: "docs: update agent-config.yaml with [pattern]"
+
+  version_history:
+    - version: "1.0"
+      date: "2025-11-06"
+      changes: "Initial config: orchestrator + 5 workers, routing rules, pre-commit mandates"
+      author: "Claude Code + Diego"

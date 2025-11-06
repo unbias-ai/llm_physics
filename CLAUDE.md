@@ -4,6 +4,36 @@
 
 Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends and agentic automation workflows. This project implements cutting-edge Claude Code orchestration patterns, emphasizing reproducibility, auditability, and maintainability.
 
+## Agent Memory & Coordination Files
+
+**CRITICAL**: All agents MUST read these files before starting any task:
+
+1. **PROJECT_MEMORY.yaml** - Project state snapshot (stack, tests, deployments, mandates, milestones)
+   - Current deployment status, open PRs, recent fixes
+   - Test coverage requirements and enforcement
+   - Performance targets and metrics
+   - Next milestones and known limitations
+
+2. **AGENT_PROGRESS_LOG.md** - Session tracking + metrics + patterns learned
+   - All agent sessions with diffs, status, metrics
+   - Root cause analyses and lessons learned
+   - Self-healing patterns from past failures
+   - Token-optimized format for efficient context loading
+
+3. **WEB_SEARCH_ORCHESTRATION_GUIDE.md** - Search queries, sources, optimization roadmap
+   - When to search vs use training data
+   - Pre-formulated search queries for common tasks
+   - Authoritative sources and what to avoid
+   - Multi-agent orchestration strategies
+
+4. **.claude/agent-config.yaml** - Agent roles, routing rules, pre-commit mandates
+   - Orchestrator + worker specifications
+   - Task routing patterns (which agent handles what)
+   - Coordination protocols and shared memory
+   - Pre-commit checks and performance targets
+
+**Update Protocol**: Agents append to AGENT_PROGRESS_LOG.md after each task. Diego reviews + approves updates to other memory files quarterly.
+
 ## Tech Stack
 
 - **Framework**: Next.js 16+ (App Router), React 19+

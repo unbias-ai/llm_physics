@@ -1,0 +1,208 @@
+# llm_physics Project Memory — Auto-Update by Agents
+# Last Updated: 2025-11-06 | Format: YAML | Purpose: Agent context + human review
+---
+project:
+  name: llm_physics
+  org: unbias-ai
+  repo_url: https://github.com/unbias-ai/llm_physics
+  live_url: https://llmphysics-peach.vercel.app
+  status: ACTIVE (6 deployments, all READY)
+
+current_state:
+  main_branch:
+    commit: c2185888eb37adc06ab7a93befc0afefb6c4535a (PR #1 merged)
+    deployment_id: dpl_5hGYgLzD4eHqQAejAbZpXVyzsEuY
+    status: PRODUCTION
+    deployed_at: 2025-11-06T14:19:41Z
+
+  open_prs:
+    - number: 3
+      title: "docs: add diff-based coding practice section to CLAUDE.md"
+      commits: 11
+      status: "AWAITING REVIEW + MERGE"
+      focus: "Agent coordination, coverage validation, security audit"
+      blockers: "NONE (all checks pass, Vercel ready)"
+
+    - number: 2
+      title: "[PENDING - NO DATA FETCHED]"
+      commits: "TBD"
+      status: "UNKNOWN"
+      note: "Requires manual fetch from GitHub API"
+
+  recent_deployments:
+    - id: dpl_7gpV18veznuxm5x5gyj9opuwXfWS
+      branch: claude/agentic-orchestration-vercel-automation
+      state: READY
+      created: 2025-11-06T14:30:24Z
+      author: "Claude (noreply@anthropic.com)"
+      summary: "feat: implement Claude Code orchestration with agentic workflows"
+
+    - id: dpl_5hGYgLzD4eHqQAejAbZpXVyzsEuY
+      branch: main
+      state: READY (PRODUCTION)
+      created: 2025-11-06T14:19:41Z
+      author: "diego.cortes3211@gmail.com"
+      summary: "Claude/pr 1 warp UI baseline (#1)"
+
+stack:
+  framework: Next.js 22.x
+  styling: Tailwind CSS
+  testing: Jest + Playwright
+  ci_cd: GitHub Actions (.github/workflows/)
+  deployment: Vercel (auto git-sync)
+  node_version: 22.x
+
+architecture:
+  pages:
+    - app/page.tsx (Warp UI baseline, minimal dark theme)
+    - app/layout.tsx (semantic HTML, placeholders for future panels)
+
+  components:
+    - status: "BASELINE ONLY" (no reusable components yet)
+    - next_phase: "Extract resizable panels component library"
+
+  utils:
+    - status: "NONE YET"
+    - planned: "Physics visualization helpers, data processing"
+
+test_coverage:
+  current: 100% (app/)
+  threshold: 80% (enforced in CI)
+  test_command: "npm run test"
+  a11y_command: "npm run test:a11y"
+
+  test_files:
+    - tests/page.test.tsx (8/8 passing)
+    - tests/a11y.spec.ts (Playwright, WCAG 2.1 AA)
+
+  ci_enforcement:
+    - lint: MANDATORY (ESLint, 2 warnings in /coverage allowed)
+    - test: MANDATORY (Jest, fail-fast on error)
+    - coverage: MANDATORY (80% minimum, blocks on regression)
+    - a11y: MANDATORY (zero CRITICAL violations)
+    - security: MANDATORY (CodeQL, no untrusted PR checkouts)
+
+ci_cd_workflows:
+  ci.yml:
+    trigger: push | pull_request (main branch)
+    jobs:
+      - lint: ESLint validation
+      - test: Jest (8/8, 100% coverage)
+      - build: Next.js optimized build
+      - coverage: LCOV validation + reporting
+      - accessibility: Playwright + axe-core
+    status: "PASSING ✓"
+
+  claude-coverage.yml:
+    trigger: issue_comment (on "/generate-tests" slash command)
+    jobs:
+      - claude-coverage-check: SAFE (uses base branch, read-only)
+      - claude-test-generation: REMOVED (was vulnerable to PR head checkout)
+    status: "SAFE (after PR #3 security audit)"
+
+  deploy-vercel.yml:
+    trigger: push (main) → auto-deploy
+    status: "IMPLIED (Vercel git-sync handles it)"
+
+recent_issues_fixed:
+  pr_1:
+    issue: "Next.js baseline + CI setup"
+    fixed: ✓ Warp UI page, Jest tests, GitHub Actions workflows
+    merged: 2025-11-06
+
+  pr_3_coverage:
+    issue: "jest.config.js mixing .spec.ts with .test.ts → CI failure"
+    fixed: ✓ testMatch: only .test.ts(x), testPathIgnorePatterns: .spec.ts
+    status: PENDING MERGE
+
+  pr_3_security:
+    issue: "CodeQL: Untrusted PR head checkout in privileged workflow"
+    fixed: ✓ Removed vulnerable claude-test-generation job
+    status: PENDING MERGE
+
+  pr_3_lcov_validation:
+    issue: "CI blocking on invalid/empty lcov.info despite local pass"
+    fixed: ✓ Added file existence + format validation, fail-fast logic
+    status: PENDING MERGE
+
+mandates_enforcement:
+  code_style:
+    - ES modules (import/export, not require)
+    - Destructure imports
+    - Semantic HTML
+    - No external fonts (reproducible builds)
+
+  agent_protocols:
+    - MANDATORY: Use --diff (scoped edits, no noise)
+    - MANDATORY: Plan-first before edits (no surprises)
+    - MANDATORY: Pre-commit testing loop (fail → fix → test again)
+    - MANDATORY: One PR = one logical feature (max 3 commits)
+    - MANDATORY: Review diffs before push
+    - MANDATORY: Coverage validation artifacts pre-commit
+    - MANDATORY: Security audit workflows (no untrusted checkouts)
+
+  documentation:
+    - CLAUDE.md: Defines all agent mandates + pre-commit checks
+    - README.md: Warp UI baseline + deployment info
+    - RESEARCH_AGENT.md: Read-only repo navigation for agents
+
+performance_targets:
+  build_time: ~2s (Next.js optimized)
+  test_time: ~4s (Jest, 8 tests)
+  coverage_generation: ~4s (LCOV + summary)
+  ci_total_time: <60s (all jobs parallel where possible)
+  lighthouse_target: 95+ (performance, a11y, best practices)
+
+next_milestones:
+  immediate:
+    - [ ] Merge PR #3 (diff-based coding + security audit)
+    - [ ] Review PR #2 (UNKNOWN — fetch from GitHub)
+    - [ ] Verify all tests pass post-merge
+
+  short_term:
+    - [ ] Extract "resizable panel" component (future physics viz)
+    - [ ] Add integration test (multi-component workflows)
+    - [ ] Document project architecture in ARCHITECTURE.md
+
+  medium_term:
+    - [ ] Physics visualization layer (canvas | Three.js)
+    - [ ] Editor panel with real-time LaTeX rendering
+    - [ ] Data export (CSV, JSON, YAML)
+
+  long_term:
+    - [ ] Multi-user collaboration (WebSocket sync)
+    - [ ] AI-assisted physics equation suggestions (Claude API integration)
+    - [ ] arXiv paper embedding + citation management
+
+agent_context_summary:
+  critical_files:
+    - CLAUDE.md: ALL agents read this first
+    - jest.config.js: Separates .test.ts from .spec.ts
+    - .github/workflows/ci.yml: Defines pass/fail criteria
+    - app/page.tsx: Current UI baseline
+    - tests/page.test.tsx: Example test pattern
+
+  common_pitfalls:
+    - ❌ Committing untested code (violates pre-commit protocol)
+    - ❌ Editing files outside scoped diff (use --diff flag)
+    - ❌ Multiple related changes in one commit (split logically)
+    - ❌ Ignoring failing tests (MUST fix before push)
+    - ❌ Checking out untrusted PR heads in privileged workflows
+
+  token_budget_tips:
+    - Use Haiku 4.5 for worker agents (90% of Sonnet, 3x cheaper)
+    - Sonnet 4.5 as orchestrator (decomposition + validation)
+    - Keep CLAUDE.md concise (<500 lines)
+    - Delegate scoped tasks to subagents (tests, docs, single-module refactors)
+
+automation_status:
+  deployments_per_pr: 1-2 (fast iteration, all auto-deployed by Vercel)
+  merge_gate_coverage: 80% (enforced, blocks merge on regression)
+  security_audit_ci: ENABLED (CodeQL, checks for unsafe patterns)
+  pre_commit_hooks: DOCUMENTED (not yet enforced locally, manual discipline)
+
+  next_automation_wins:
+    - [ ] GitHub Rules Engine: Auto-squash commits for clean history
+    - [ ] Dependabot: Auto-update Next.js, Node.js, dependencies
+    - [ ] Lighthouse CI: Performance budgets enforced per PR
+    - [ ] SBOM generation: Supply chain security tracking
