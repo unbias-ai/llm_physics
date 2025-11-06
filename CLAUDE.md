@@ -37,6 +37,79 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 - Keep functions small and single-purpose
 - Document complex logic with clear comments
 
+## Diff-Based Coding Practice
+
+**Core Principle**: All coding agents must work "with diff" rather than "without diff" to ensure precision, traceability, and reproducibility.
+
+### What is Coding with Diff?
+
+When you code "with diff," you work only with the exact lines that changed between two versions of a file, as shown by commands like `git diff`. This approach keeps both humans and AI assistants focused on the delta instead of the entire repository.
+
+### Benefits of Diff-Based Coding
+
+1. **Prevents Accidental Edits**: By focusing only on changed lines, you avoid unintentional modifications to unrelated code
+2. **Reduces Noise**: Reviews and commits contain only relevant changes, making them easier to understand
+3. **Ensures Traceability**: Every suggestion is anchored to a specific change, creating a clear audit trail
+4. **Maintains Concise Commits**: Commit messages stay focused on the actual changes made
+5. **Guarantees Reproducibility**: The AI's context is explicitly bounded to the diff block, preventing hallucinated edits
+6. **Simplifies Reviews**: Reviewers see exactly what changed without wading through unchanged code
+
+### Diff-Based vs. Whole-File Coding
+
+**Coding WITH Diff (Required)**:
+- Context limited to changed lines from `git diff`
+- Edits are precise and traceable
+- Commit messages reflect actual changes
+- Audit trail is clean and verifiable
+- Reviews focus on relevant changes only
+
+**Coding WITHOUT Diff (Discouraged)**:
+- Entire file or repository exposed as context
+- Risk of bloated commits with unrelated changes
+- Potential for hallucinated or accidental edits
+- Broken audit trails and unclear change rationale
+- Difficult to review and verify changes
+
+### Implementation Guidelines
+
+1. **Always Review Diffs**: Before making changes, run `git diff` to understand the current state
+2. **Anchor Context**: When editing, reference only the lines shown in the diff
+3. **Verify Changes**: After editing, run `git diff` again to confirm only intended lines changed
+4. **Atomic Commits**: Each commit should represent a single logical change visible in its diff
+5. **Clear Boundaries**: If a change requires touching unrelated code, consider splitting into multiple commits
+
+### Example Workflow
+
+```bash
+# 1. Check current diff
+git diff
+
+# 2. Make focused changes to only the lines that need modification
+# (using Edit tool with exact line matches from the diff)
+
+# 3. Verify the diff contains only intended changes
+git diff
+
+# 4. Commit with a message that describes the diff
+git commit -m "fix: correct validation logic in user input handler"
+
+# 5. Review the committed diff
+git show HEAD
+```
+
+### Integration with Agent Workflows
+
+- **test-autogen-agent**: Generates tests based on diff context, ensuring tests cover only changed functionality
+- **vercel-deploy-specialist**: Deploys based on diff analysis, triggering only affected build steps
+- **repo-auditor**: Audits changes in the diff, not the entire codebase, for faster feedback
+
+### Compliance
+
+- All PRs must show clean, focused diffs
+- Commits containing unrelated changes will be flagged in review
+- Agents that produce noisy diffs will be corrected or disabled
+- Diff-based coding is enforced by code review and audit processes
+
 ## Testing Policy
 
 ### Coverage Requirements
