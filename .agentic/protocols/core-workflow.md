@@ -6,7 +6,7 @@
 
 ---
 
-## PTIV Workflow (Plan → Test → Implement → Verify)
+## PTIV Workflow (Plan  Test  Implement  Verify)
 
 This is the **mandatory workflow** for all code changes.
 
@@ -173,7 +173,7 @@ npm run build
 echo "Running audit..."
 node scripts/verify_audit_block.js
 
-echo "✅ All checks passed!"
+echo " All checks passed!"
 ```
 
 **If Checks Fail**:
@@ -277,9 +277,9 @@ echo "✅ All checks passed!"
 ```
 1. Read build output
 2. Common issues:
-   - TypeScript errors → Fix type issues
-   - Import errors → Check import paths
-   - Missing dependencies → Run npm ci
+   - TypeScript errors  Fix type issues
+   - Import errors  Check import paths
+   - Missing dependencies  Run npm ci
 3. Fix and rebuild
 ```
 
@@ -289,13 +289,13 @@ echo "✅ All checks passed!"
 1. Read audit report:
    artifacts/audit_logs/audit-<timestamp>.json
 2. Check severity:
-   - CRITICAL → Fix immediately (blocks merge)
-   - HIGH → Fix before merge
-   - MEDIUM/LOW → Can defer
+   - CRITICAL  Fix immediately (blocks merge)
+   - HIGH  Fix before merge
+   - MEDIUM/LOW  Can defer
 3. Common issues:
-   - Exposed secrets → Remove from code, use env vars
-   - Low coverage → Add more tests
-   - Security vulnerabilities → Update dependencies
+   - Exposed secrets  Remove from code, use env vars
+   - Low coverage  Add more tests
+   - Security vulnerabilities  Update dependencies
 4. Fix and re-run audit
 ```
 

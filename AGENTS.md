@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-This document defines the **universal agentic orchestration protocol** for the llm_physics repository. Any AI agent—current or future—can use this guide to understand, contribute to, and automate workflows in this codebase.
+This document defines the **universal agentic orchestration protocol** for the llm_physics repository. Any AI agentcurrent or futurecan use this guide to understand, contribute to, and automate workflows in this codebase.
 
 **Key Principle**: This repository is designed for **agent-driven development** with human oversight. All agents, regardless of their underlying model or provider, should follow these standardized protocols.
 
@@ -93,39 +93,39 @@ For optimal contribution, agents SHOULD have:
 
 ```
 llm_physics/
-├── .agentic/                  # Universal agentic protocols (THIS IS NEW)
-│   ├── protocols/             # Standardized protocols for all agents
-│   ├── examples/              # Example workflows and code
-│   └── templates/             # Reusable templates
-│
-├── .claude/                   # Claude-specific configuration (REFERENCE)
-│   ├── agents/                # Claude agent definitions
-│   ├── commands/              # Claude slash commands
-│   └── settings.json          # Claude-specific settings
-│
-├── .github/                   # GitHub automation
-│   └── workflows/             # CI/CD workflows
-│
-├── app/                       # Next.js application code
-│   ├── page.tsx               # Root page
-│   └── globals.css            # Global styles
-│
-├── tests/                     # Test files
-│   └── *.test.tsx             # Component tests
-│
-├── scripts/                   # Utility scripts
-│   └── verify_audit_block.js  # Audit and compliance checker
-│
-├── artifacts/                 # Generated artifacts
-│   └── audit_logs/            # Audit trail (90-day retention)
-│
-├── docs/                      # Comprehensive documentation
-│
-├── AGENTS.md                  # This file - universal agent guide
-├── ARCHITECTURE.md            # System architecture documentation
-├── CONTRIBUTING.md            # Contribution guidelines for agents
-├── CLAUDE.md                  # Project policies and standards
-└── README.md                  # User-facing documentation
+ .agentic/                  # Universal agentic protocols (THIS IS NEW)
+    protocols/             # Standardized protocols for all agents
+    examples/              # Example workflows and code
+    templates/             # Reusable templates
+
+ .claude/                   # Claude-specific configuration (REFERENCE)
+    agents/                # Claude agent definitions
+    commands/              # Claude slash commands
+    settings.json          # Claude-specific settings
+
+ .github/                   # GitHub automation
+    workflows/             # CI/CD workflows
+
+ app/                       # Next.js application code
+    page.tsx               # Root page
+    globals.css            # Global styles
+
+ tests/                     # Test files
+    *.test.tsx             # Component tests
+
+ scripts/                   # Utility scripts
+    verify_audit_block.js  # Audit and compliance checker
+
+ artifacts/                 # Generated artifacts
+    audit_logs/            # Audit trail (90-day retention)
+
+ docs/                      # Comprehensive documentation
+
+ AGENTS.md                  # This file - universal agent guide
+ ARCHITECTURE.md            # System architecture documentation
+ CONTRIBUTING.md            # Contribution guidelines for agents
+ CLAUDE.md                  # Project policies and standards
+ README.md                  # User-facing documentation
 ```
 
 ### File Priority for Context Loading
@@ -213,40 +213,40 @@ After quick start, agents should:
 
 ## Core Protocols
 
-### Protocol 1: Plan → Test → Implement → Verify (PTIV)
+### Protocol 1: Plan  Test  Implement  Verify (PTIV)
 
 **All agents MUST follow this workflow for every task.**
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  PTIV WORKFLOW                          │
-└─────────────────────────────────────────────────────────┘
+
+                  PTIV WORKFLOW                          
+
 
 1. PLAN
-   ├─ Read relevant files
-   ├─ Understand requirements
-   ├─ Break down into subtasks
-   ├─ Create task list (use TodoWrite or equivalent)
-   └─ Identify dependencies
+    Read relevant files
+    Understand requirements
+    Break down into subtasks
+    Create task list (use TodoWrite or equivalent)
+    Identify dependencies
 
 2. TEST (if applicable)
-   ├─ Write failing test first (TDD)
-   ├─ Or write test alongside implementation
-   ├─ Ensure test is deterministic
-   └─ Run test and verify it fails correctly
+    Write failing test first (TDD)
+    Or write test alongside implementation
+    Ensure test is deterministic
+    Run test and verify it fails correctly
 
 3. IMPLEMENT
-   ├─ Write minimal code to pass tests
-   ├─ Follow code style from CLAUDE.md
-   ├─ Add comments for complex logic
-   └─ Keep functions small and single-purpose
+    Write minimal code to pass tests
+    Follow code style from CLAUDE.md
+    Add comments for complex logic
+    Keep functions small and single-purpose
 
 4. VERIFY
-   ├─ Run: npm run lint
-   ├─ Run: npm test (must achieve >95% coverage)
-   ├─ Run: npm run build
-   ├─ Run: node scripts/verify_audit_block.js
-   └─ If any fail, return to step 3
+    Run: npm run lint
+    Run: npm test (must achieve >95% coverage)
+    Run: npm run build
+    Run: node scripts/verify_audit_block.js
+    If any fail, return to step 3
 ```
 
 ### Protocol 2: Atomic Commits
@@ -401,7 +401,7 @@ def complex_workflow():
 
     # Sequential Execution
     4. Run dependent agents in sequence:
-       tests → implementation → review → deployment
+       tests  implementation  review  deployment
 
     # Consolidation
     5. Merge results
@@ -575,16 +575,16 @@ All agent actions must be logged to `artifacts/audit_logs/`:
 ### Agent-to-Human Communication
 
 **Be concise and actionable**:
-- ✅ "Tests passing. Coverage 98%. Ready for review."
-- ❌ "I've completed the implementation of the feature you requested and everything seems to be working great!"
+-  "Tests passing. Coverage 98%. Ready for review."
+-  "I've completed the implementation of the feature you requested and everything seems to be working great!"
 
 **Report failures clearly**:
-- ✅ "Build failed. Error: Module 'react' not found. Run: npm install"
-- ❌ "Something went wrong with the build."
+-  "Build failed. Error: Module 'react' not found. Run: npm install"
+-  "Something went wrong with the build."
 
 **Ask for clarification when needed**:
-- ✅ "Should the API endpoint use POST or PUT for updates?"
-- ❌ "I'm not sure what to do." (too vague)
+-  "Should the API endpoint use POST or PUT for updates?"
+-  "I'm not sure what to do." (too vague)
 
 ### Agent-to-Agent Communication
 
@@ -607,11 +607,11 @@ Use structured formats:
 ### When Errors Occur
 
 **Step 1: Identify Error Type**
-- Syntax error → Fix code
-- Test failure → Fix implementation or test
-- Lint error → Fix code style
-- Build error → Fix dependencies or config
-- Runtime error → Add error handling
+- Syntax error  Fix code
+- Test failure  Fix implementation or test
+- Lint error  Fix code style
+- Build error  Fix dependencies or config
+- Runtime error  Add error handling
 
 **Step 2: Attempt Auto-Recovery**
 ```python
@@ -644,23 +644,23 @@ def attempt_recovery(error):
 
 #### Pattern 1: Sequential (Pipeline)
 ```
-Agent A → Agent B → Agent C → Agent D
-(tests) → (code)  → (review) → (deploy)
+Agent A  Agent B  Agent C  Agent D
+(tests)  (code)   (review)  (deploy)
 ```
 
 #### Pattern 2: Parallel (Fan-out/Fan-in)
 ```
-        ┌─ Agent B (feature 1) ─┐
-Agent A ├─ Agent C (feature 2) ─┤→ Agent E
-        └─ Agent D (feature 3) ─┘
+         Agent B (feature 1) 
+Agent A  Agent C (feature 2)  Agent E
+         Agent D (feature 3) 
 ```
 
 #### Pattern 3: Hierarchical (Manager/Worker)
 ```
 Coordinator Agent
-    ├─ Worker Agent 1
-    ├─ Worker Agent 2
-    └─ Worker Agent 3
+     Worker Agent 1
+     Worker Agent 2
+     Worker Agent 3
 ```
 
 ### Conflict Resolution
@@ -748,53 +748,53 @@ git push -u origin <branch>
 ### Decision Tree
 
 ```
-┌─────────────────────────────────────┐
-│    New Task Received                │
-└───────────────┬─────────────────────┘
-                │
-                ▼
-    ┌─────────────────────┐
-    │  Is task clear?     │
-    └────┬────────────┬───┘
-         │ No         │ Yes
-         ▼            ▼
+
+    New Task Received                
+
+                
+                
+    
+      Is task clear?     
+    
+          No          Yes
+                     
     Ask for     Read relevant
     clarification   files
-         │            │
-         └────┬───────┘
-              ▼
-    ┌───────────────────┐
-    │  Create plan      │
-    │  (TodoWrite)      │
-    └────────┬──────────┘
-             ▼
-    ┌───────────────────┐
-    │  Write tests      │
-    │  (if applicable)  │
-    └────────┬──────────┘
-             ▼
-    ┌───────────────────┐
-    │  Implement        │
-    └────────┬──────────┘
-             ▼
-    ┌───────────────────┐
-    │  Run: lint, test, │
-    │  build, audit     │
-    └────┬──────────┬───┘
-         │ Fail     │ Pass
-         ▼          ▼
+                     
+         
+              
+    
+      Create plan      
+      (TodoWrite)      
+    
+             
+    
+      Write tests      
+      (if applicable)  
+    
+             
+    
+      Implement        
+    
+             
+    
+      Run: lint, test, 
+      build, audit     
+    
+          Fail      Pass
+                   
     Fix issues   Commit & Push
-         │            │
-         └────┬───────┘
-              ▼
-    ┌───────────────────┐
-    │  Update docs      │
-    │  (if needed)      │
-    └────────┬──────────┘
-             ▼
-    ┌───────────────────┐
-    │  Task complete    │
-    └───────────────────┘
+                     
+         
+              
+    
+      Update docs      
+      (if needed)      
+    
+             
+    
+      Task complete    
+    
 ```
 
 ---

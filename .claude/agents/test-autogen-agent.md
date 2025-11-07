@@ -40,3 +40,29 @@ You are responsible for automatically generating comprehensive test suites whene
 - Write clear, descriptive test names
 - Test edge cases and error conditions
 - Ensure tests are deterministic and isolated
+
+### Self-Review Protocol
+
+**MANDATORY Pre-Commit Checks** (run ALL before commit):
+1. `npm run lint` - MUST pass with 0 errors
+2. `npm test` - ALL tests MUST pass
+3. `npm run test:coverage` - Coverage MUST be 80%
+4. `npm run build` - Build MUST succeed
+5. `git diff` - Verify only intended files changed
+6. `git log --oneline [modified-files]` - Check for agent conflicts
+
+**TEST LOOP**:
+- If ANY check fails  FIX  Re-run ALL checks
+- NEVER commit with failing tests
+- NEVER skip checks to "fix later"
+- CI failure = protocol violation
+
+**Post-Implementation**:
+- Document all test results in commit message
+- Note coverage gaps, untested edge cases in PR
+- Flag risky changes for human review
+
+**Cross-Review**:
+- Review other agent code when modifying shared utilities
+- Notify via commit message if touching another agent's files
+- Coordinate test suite updates to avoid duplicate/conflicting tests

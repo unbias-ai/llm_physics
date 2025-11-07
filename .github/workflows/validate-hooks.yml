@@ -1,0 +1,80 @@
+name: Validate Git Hooks
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-husky:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Check Husky pre-commit hook exists
+        run: |
+          echo "=== Checking for Husky installation ==="
+
+          if [ ! -f .husky/pre-commit ]; then
+            echo "❌ ERROR: Husky pre-commit hook not found"
+            echo "Run: npx husky init"
+            exit 1
+          fi
+
+          echo "✅ Husky pre-commit hook exists"
+
+      - name: Check pre-commit hook is executable
+        run: |
+          if [ ! -x .husky/pre-commit ]; then
+            echo "❌ ERROR: Pre-commit hook is not executable"
+            echo "Run: chmod +x .husky/pre-commit"
+            exit 1
+          fi
+
+          echo "✅ Pre-commit hook is executable"
+
+      - name: Validate pre-commit hook contents
+        run: |
+          echo "=== Validating pre-commit hook contents ==="
+
+          HOOK_CONTENT=$(cat .husky/pre-commit)
+
+          # Check for required checks
+          if ! echo "$HOOK_CONTENT" | grep -q "npm run lint"; then
+            echo "❌ ERROR: Pre-commit hook missing 'npm run lint'"
+            exit 1
+          fi
+
+          if ! echo "$HOOK_CONTENT" | grep -q "npm test"; then
+            echo "❌ ERROR: Pre-commit hook missing 'npm test'"
+            exit 1
+          fi
+
+          if ! echo "$HOOK_CONTENT" | grep -q "npm run test:coverage"; then
+            echo "❌ ERROR: Pre-commit hook missing 'npm run test:coverage'"
+            exit 1
+          fi
+
+          if ! echo "$HOOK_CONTENT" | grep -q "npm run build"; then
+            echo "❌ ERROR: Pre-commit hook missing 'npm run build'"
+            exit 1
+          fi
+
+          if ! echo "$HOOK_CONTENT" | grep -q "lcov.info"; then
+            echo "❌ ERROR: Pre-commit hook missing coverage artifact validation"
+            exit 1
+          fi
+
+          echo "✅ Pre-commit hook contains all required checks"
+
+      - name: Check package.json has Husky prepare script
+        run: |
+          if ! grep -q '"prepare".*"husky"' package.json; then
+            echo "❌ ERROR: package.json missing Husky prepare script"
+            echo "Add: \"prepare\": \"husky\""
+            exit 1
+          fi
+
+          echo "✅ package.json has Husky prepare script"

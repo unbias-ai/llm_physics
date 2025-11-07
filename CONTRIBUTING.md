@@ -54,7 +54,7 @@ npm run lint && npm test && npm run build && node scripts/verify_audit_block.js
 git checkout -b <agent-name>/task-description
 
 # 6. Follow PTIV workflow
-Plan → Test → Implement → Verify
+Plan  Test  Implement  Verify
 
 # 7. Commit and push
 git add . && git commit -m "..." && git push
@@ -121,7 +121,7 @@ git add . && git commit -m "..." && git push
 - Discuss feature in GitHub Issue first
 - Get approval from maintainers
 - Create branch: `feat/feature-name`
-- Follow PTIV workflow (Plan → Test → Implement → Verify)
+- Follow PTIV workflow (Plan  Test  Implement  Verify)
 - Submit PR with documentation
 
 #### 3. **Documentation**
@@ -161,27 +161,27 @@ git add . && git commit -m "..." && git push
 
 ```
 1. PLAN
-   ├─ Read AGENTS.md, CLAUDE.md, relevant files
-   ├─ Understand the task
-   ├─ Break down into subtasks
-   └─ Create task list
+    Read AGENTS.md, CLAUDE.md, relevant files
+    Understand the task
+    Break down into subtasks
+    Create task list
 
 2. TEST
-   ├─ Write failing test (TDD)
-   ├─ Or write test alongside implementation
-   └─ Ensure test is deterministic
+    Write failing test (TDD)
+    Or write test alongside implementation
+    Ensure test is deterministic
 
 3. IMPLEMENT
-   ├─ Write minimal code to pass test
-   ├─ Follow coding standards
-   ├─ Add inline documentation
-   └─ Keep changes focused
+    Write minimal code to pass test
+    Follow coding standards
+    Add inline documentation
+    Keep changes focused
 
 4. VERIFY
-   ├─ npm run lint (must pass)
-   ├─ npm test (must pass, >95% coverage)
-   ├─ npm run build (must succeed)
-   └─ node scripts/verify_audit_block.js (must pass)
+    npm run lint (must pass)
+    npm test (must pass, >95% coverage)
+    npm run build (must succeed)
+    node scripts/verify_audit_block.js (must pass)
 ```
 
 ### Branch Naming Convention
@@ -318,18 +318,18 @@ function helperFunction() {
 
 ```
 app/
-├── components/
-│   ├── ui/              # Reusable UI primitives
-│   │   ├── Button.tsx
-│   │   └── Input.tsx
-│   └── features/        # Feature-specific components
-│       └── WarpUI.tsx
-├── lib/                 # Utility functions
-│   └── utils.ts
-├── hooks/               # Custom React hooks
-│   └── useWarp.ts
-└── types/               # Shared TypeScript types
-    └── index.ts
+ components/
+    ui/              # Reusable UI primitives
+       Button.tsx
+       Input.tsx
+    features/        # Feature-specific components
+        WarpUI.tsx
+ lib/                 # Utility functions
+    utils.ts
+ hooks/               # Custom React hooks
+    useWarp.ts
+ types/               # Shared TypeScript types
+     index.ts
 ```
 
 ---
@@ -354,11 +354,11 @@ npm test -- --coverage
 
 ```
 tests/
-├── page.test.tsx          # Test for app/page.tsx
-├── components/
-│   └── WarpUI.test.tsx    # Test for app/components/WarpUI.tsx
-└── lib/
-    └── utils.test.ts      # Test for app/lib/utils.ts
+ page.test.tsx          # Test for app/page.tsx
+ components/
+    WarpUI.test.tsx    # Test for app/components/WarpUI.tsx
+ lib/
+     utils.test.ts      # Test for app/lib/utils.ts
 ```
 
 ### Test Structure
@@ -568,7 +568,7 @@ Mark as "Ready for review" when complete.
 
 #### Best Practices
 
-1. **Always follow PTIV** (Plan → Test → Implement → Verify)
+1. **Always follow PTIV** (Plan  Test  Implement  Verify)
 2. **Use TodoWrite** or equivalent to track tasks
 3. **Read before writing**: Understand existing code
 4. **Test thoroughly**: Achieve >95% coverage
@@ -613,35 +613,35 @@ When reviewing agent-generated PRs:
 
 ```
 1. PR Opened
-   │
-   ├─ Automated Checks (GitHub Actions)
-   │  ├─ Lint
-   │  ├─ Test
-   │  ├─ Build
-   │  └─ Audit
-   │
-   ├─ Automated Review (Claude PR Review)
-   │  ├─ Coverage check
-   │  ├─ Security scan
-   │  └─ Comment on PR
-   │
-   └─ Human Review
-      ├─ Code quality
-      ├─ Architecture fit
-      ├─ User experience
-      └─ Approve or Request Changes
+   
+    Automated Checks (GitHub Actions)
+      Lint
+      Test
+      Build
+      Audit
+   
+    Automated Review (Claude PR Review)
+      Coverage check
+      Security scan
+      Comment on PR
+   
+    Human Review
+       Code quality
+       Architecture fit
+       User experience
+       Approve or Request Changes
 
 2. Changes Requested
-   │
-   ├─ Author addresses feedback
-   ├─ Automated checks re-run
-   └─ Request re-review
+   
+    Author addresses feedback
+    Automated checks re-run
+    Request re-review
 
 3. Approved
-   │
-   ├─ Merge to main (squash or merge commit)
-   ├─ Deploy to production (via Vercel)
-   └─ Close PR
+   
+    Merge to main (squash or merge commit)
+    Deploy to production (via Vercel)
+    Close PR
 ```
 
 ### Review Criteria
@@ -740,7 +740,7 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 ## Thank You!
 
-Thank you for contributing to llm_physics! Every contribution—whether code, documentation, tests, or reviews—makes this project better.
+Thank you for contributing to llm_physics! Every contributionwhether code, documentation, tests, or reviewsmakes this project better.
 
 **Special recognition** for agent contributors: You're helping shape the future of AI-assisted development!
 

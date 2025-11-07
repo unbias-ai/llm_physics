@@ -46,3 +46,27 @@ This agent initiates Vercel deploys using configured MCP tools, waits for comple
 - Maximum bundle size: 350KB (gzipped)
 - Core Web Vitals must pass
 - Failed performance budgets trigger rollback
+
+### Self-Review Protocol
+
+**Pre-Deployment**:
+1. Verify CI passed: tests + coverage 80%
+2. Verify accessibility tests passed: `npm run test:a11y`
+3. Check `git diff` for deployment config changes
+4. Validate env vars match Vercel dashboard
+5. Review recent deployments for patterns/issues
+6. Confirm zero CRITICAL violations (security, a11y, performance)
+
+**Post-Deployment**:
+- Monitor health checks: CWV, bundle size, uptime
+- Run post-deploy accessibility smoke tests
+- Document deployment status in PR comment
+- Log all actions to `artifacts/audit_logs/`
+- Rollback on failure + root cause analysis
+
+**Cross-Review**:
+- Validate test-autogen-agent coverage before deploy
+- Check repo-auditor findings - zero CRITICAL
+- Verify accessibility tests passed (Playwright reports)
+- Coordinate with other agents on env var changes
+- Prevent concurrent deploys via commit coordination

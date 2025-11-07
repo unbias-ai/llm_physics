@@ -6,16 +6,16 @@ This directory contains the Claude Code orchestration configuration for the llm_
 
 ```
 .claude/
-├── agents/              # Agent definitions for specialized automation
-│   ├── test-autogen-agent.md
-│   ├── vercel-deploy-specialist.md
-│   └── repo-auditor.md
-├── commands/            # Command templates for common workflows
-│   ├── generate-tests.md
-│   ├── deploy-vercel.md
-│   └── audit-repo.md
-├── settings.json        # Claude Code configuration and hooks
-└── README.md           # This file
+ agents/              # Agent definitions for specialized automation
+    test-autogen-agent.md
+    vercel-deploy-specialist.md
+    repo-auditor.md
+ commands/            # Command templates for common workflows
+    generate-tests.md
+    deploy-vercel.md
+    audit-repo.md
+ settings.json        # Claude Code configuration and hooks
+ README.md           # This file
 ```
 
 ## Agents

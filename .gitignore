@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/playwright-report
+/test-results
 
 # next.js
 /.next/
@@ -43,3 +45,7 @@ next-env.d.ts
 # audit logs (keep directory structure but not actual logs)
 artifacts/audit_logs/*.json
 artifacts/audit_logs/*.jsonl
+
+# v2.0 External Diff Storage
+.diffs/*.diff
+.diffs/archive/*.diff

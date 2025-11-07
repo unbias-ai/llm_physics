@@ -1,0 +1,146 @@
+name: Enforce No Emoji (v2.0)
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  detect-and-remove-emojis:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Detect non-ASCII characters (emojis, em-dashes, etc.)
+        id: detect
+        run: |
+          echo "=== Scanning for non-ASCII characters ==="
+
+          # Scan markdown files (use -P for Perl regex to properly interpret \x escapes)
+          NON_ASCII_FILES=$(grep -Prl '[^\x00-\x7F]' *.md .claude/*.md 2>/dev/null || true)
+          
+          if [ -n "$NON_ASCII_FILES" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "files<<EOF" >> $GITHUB_OUTPUT
+            echo "$NON_ASCII_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            
+            echo "Non-ASCII characters found in:"
+            echo "$NON_ASCII_FILES"
+            
+            # Show exact violations
+            for file in $NON_ASCII_FILES; do
+              echo ""
+              echo "File: $file"
+              grep --color=always -P -n '[^\x00-\x7F]' "$file" || true
+            done
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "No non-ASCII characters detected"
+          fi
+      
+      - name: Remove emojis and non-ASCII characters
+        if: steps.detect.outputs.found == 'true'
+        run: |
+          echo "=== Auto-fixing non-ASCII characters ==="
+          
+          # Process each file
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              echo "Fixing: $file"
+              
+              # Remove emojis and non-ASCII, preserving newlines
+              LC_ALL=C sed -i 's/[^\x00-\x7F]//g' "$file"
+              
+              # Replace common patterns
+              sed -i 's/--/--/g' "$file"  # em-dash to double hyphen
+              sed -i 's/--/--/g' "$file"  # en-dash to double hyphen
+              sed -i "s/'/'/" "$file"       # smart quote to straight
+              sed -i 's/"/"/' "$file"       # smart quote to straight
+              
+              echo "Fixed: $file"
+            fi
+          done <<< "${{ steps.detect.outputs.files }}"
+          
+          echo "=== Fixes complete ==="
+      
+      - name: Verify cleanup
+        if: steps.detect.outputs.found == 'true'
+        run: |
+          echo "=== Verifying cleanup ==="
+
+          REMAINING=$(grep -Prl '[^\x00-\x7F]' *.md .claude/*.md 2>/dev/null || true)
+          
+          if [ -n "$REMAINING" ]; then
+            echo "ERROR: Non-ASCII characters still present in:"
+            echo "$REMAINING"
+            exit 1
+          else
+            echo "SUCCESS: All non-ASCII characters removed"
+          fi
+      
+      - name: Commit fixes (if running on push)
+        if: steps.detect.outputs.found == 'true' && github.event_name == 'push'
+        run: |
+          git config user.name "Claude Code Bot"
+          git config user.email "noreply@anthropic.com"
+          
+          git add -A
+          git commit -m "chore: remove non-ASCII characters (auto-fix)"
+          git push
+      
+      - name: Comment on PR (if running on pull_request)
+        if: steps.detect.outputs.found == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = `${{ steps.detect.outputs.files }}`.split('\n').filter(Boolean);
+            const body = `## Non-ASCII Characters Detected
+            
+            The following files contained emojis or non-ASCII characters:
+            ${files.map(f => `- \`${f}\``).join('\n')}
+            
+            **Action**: Auto-fix applied. Please pull latest changes.
+            
+            **Prevention**: Ensure editor uses UTF-8 and avoid emoji input.`;
+            
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+      
+      - name: Update metrics
+        if: steps.detect.outputs.found == 'true'
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          FILE_COUNT=$(echo "${{ steps.detect.outputs.files }}" | wc -l)
+          
+          # Append to SESSION_DELTAS.log if exists
+          if [ -f SESSION_DELTAS.log ]; then
+            echo "$TIMESTAMP | emoji-enforcer | auto-fix | PASS | files:$FILE_COUNT" >> SESSION_DELTAS.log
+          fi
+      
+      - name: Summary
+        run: |
+          if [ "${{ steps.detect.outputs.found }}" == "true" ]; then
+            echo "## Summary: Emojis Removed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Files cleaned:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.detect.outputs.files }}" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Summary: No Emojis Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All files are ASCII-clean." >> $GITHUB_STEP_SUMMARY
+          fi

@@ -1,8 +1,68 @@
-# CLAUDE.md — Agentic Policy for llm_physics
+# CLAUDE.md  Agentic Policy for llm_physics
 
 ## Project Overview
 
 Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends and agentic automation workflows. This project implements cutting-edge Claude Code orchestration patterns, emphasizing reproducibility, auditability, and maintainability.
+
+## Agent Memory & Coordination Files
+
+**CRITICAL**: All agents MUST read these files before starting any task:
+
+1. **PROJECT_MEMORY.yaml** - Project state snapshot (stack, tests, deployments, mandates, milestones)
+   - Current deployment status, open PRs, recent fixes
+   - Test coverage requirements and enforcement
+   - Performance targets and metrics
+   - Next milestones and known limitations
+
+2. **AGENT_PROGRESS_LOG.md** - Session tracking + metrics + patterns learned
+   - All agent sessions with diffs, status, metrics
+   - Root cause analyses and lessons learned
+   - Self-healing patterns from past failures
+   - Token-optimized format for efficient context loading
+
+3. **WEB_SEARCH_ORCHESTRATION_GUIDE.md** - Search queries, sources, optimization roadmap
+   - When to search vs use training data
+   - Pre-formulated search queries for common tasks
+   - Authoritative sources and what to avoid
+   - Multi-agent orchestration strategies
+
+4. **.claude/agent-config.yaml** - Agent roles, routing rules, pre-commit mandates
+   - Orchestrator + worker specifications
+   - Task routing patterns (which agent handles what)
+   - Coordination protocols and shared memory
+   - Pre-commit checks and performance targets
+
+**Update Protocol**: Agents append to AGENT_PROGRESS_LOG.md after each task. Diego reviews + approves updates to other memory files quarterly.
+
+## Self-Healing System (v2.0)
+
+**Auto-Debug Protocol**: Agents detect, diagnose, and fix issues autonomously before escalating to human review.
+
+### Supported Patterns:
+- **Emoji enforcement**: Auto-remove non-ASCII characters (enforce-no-emoji.yml workflow)
+- **Token bloat**: Switch to reference-based logging (PROJECT_REFERENCES.yaml + SESSION_DELTAS.log)
+- **Test failures**: Rewind to checkpoint, retry with different approach
+- **Coverage regression**: Re-run tests with --coverage, generate missing tests
+- **Security violations**: Flag HIGH/CRITICAL findings, block merge, escalate
+
+### Self-Healing Flow:
+1. **SCAN**: Detect violation pattern
+2. **DIAGNOSE**: Identify root cause
+3. **LOCATE**: Find affected files/modules
+4. **FIX**: Apply correction (isolated, testable)
+5. **VERIFY**: Re-run checks to confirm fix
+6. **LOG**: Append to SESSION_DELTAS.log
+
+### Documentation:
+- **Playbook**: SELF_HEALING_PLAYBOOK.md (diagnostic patterns + fixes)
+- **Patterns**: FOUNDATIONAL_PATTERNS.md (repo-wide best practices)
+- **Metrics**: SESSION_DELTAS.log + PROJECT_METRICS.tsv
+
+### Token Optimization (v2.0):
+- **v1.0**: 400-600 tokens per session, 2500 tokens for last 5 sessions
+- **v2.0**: 1-2 tokens per session, 250 tokens total (98% reduction)
+- **Scale**: v1.0 limit = 500 sessions, v2.0 limit = 10,000+ sessions
+- **Format**: AGENT_PROGRESS_LOG_v2.md (reference-based), SCALE_CODEC.md (system docs)
 
 ## Tech Stack
 
@@ -25,7 +85,34 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 - **Components**: lowercase-hyphenated (warp-ui, audit-console, orb-panel)
 - **Files**: PascalCase for components (WarpUI.tsx), camelCase for utilities (formatData.ts)
 - **Tests**: ComponentName.test.tsx or __tests__/ComponentName.test.tsx
-- **Formatting**: Minimal, no emojis, no noise
+
+## CRITICAL: ASCII-Only Mandate
+
+**ALL agents MUST comply**:
+
+1. **NO non-ASCII characters**: No emojis, no em-dashes, no smart quotes, no Unicode symbols
+2. **ASCII-only**: Use standard ASCII (0x00-0x7F) for ALL text
+3. **Replacements**:
+   - Em-dash (--) -> double hyphen (--)
+   - Smart quotes ('') -> straight quotes (' ')
+   - Arrows (->) -> ASCII arrows (->)
+   - Bullets (*) -> asterisks (*)
+4. **Enforcement**: enforce-no-emoji.yml workflow auto-removes violations
+5. **Violation = CI failure**: Non-ASCII blocks merge
+
+## CRITICAL: Extreme Conciseness Mandate
+
+**ALL communication MUST be minimal**:
+
+1. **Sacrifice grammar for brevity**: "Tests pass" not "All tests are passing successfully"
+2. **No filler words**: "Done" not "I have completed the task"
+3. **No explanations unless asked**: Show results, not process
+4. **Token budget**: Every word costs money, minimize ruthlessly
+5. **Examples**:
+   - BAD: "I've implemented the feature you requested and it's working great!"
+   - GOOD: "Feature implemented. Tests pass."
+   - BAD: "There seems to be an issue with the build process"
+   - GOOD: "Build failed. Error: [specific error]"
 
 ## Code Style
 
@@ -36,6 +123,79 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 - Prefer composition over inheritance
 - Keep functions small and single-purpose
 - Document complex logic with clear comments
+
+## Diff-Based Coding Practice
+
+**Core Principle**: All coding agents must work "with diff" rather than "without diff" to ensure precision, traceability, and reproducibility.
+
+### What is Coding with Diff?
+
+When you code "with diff," you work only with the exact lines that changed between two versions of a file, as shown by commands like `git diff`. This approach keeps both humans and AI assistants focused on the delta instead of the entire repository.
+
+### Benefits of Diff-Based Coding
+
+1. **Prevents Accidental Edits**: By focusing only on changed lines, you avoid unintentional modifications to unrelated code
+2. **Reduces Noise**: Reviews and commits contain only relevant changes, making them easier to understand
+3. **Ensures Traceability**: Every suggestion is anchored to a specific change, creating a clear audit trail
+4. **Maintains Concise Commits**: Commit messages stay focused on the actual changes made
+5. **Guarantees Reproducibility**: The AI's context is explicitly bounded to the diff block, preventing hallucinated edits
+6. **Simplifies Reviews**: Reviewers see exactly what changed without wading through unchanged code
+
+### Diff-Based vs. Whole-File Coding
+
+**Coding WITH Diff (Required)**:
+- Context limited to changed lines from `git diff`
+- Edits are precise and traceable
+- Commit messages reflect actual changes
+- Audit trail is clean and verifiable
+- Reviews focus on relevant changes only
+
+**Coding WITHOUT Diff (Discouraged)**:
+- Entire file or repository exposed as context
+- Risk of bloated commits with unrelated changes
+- Potential for hallucinated or accidental edits
+- Broken audit trails and unclear change rationale
+- Difficult to review and verify changes
+
+### Implementation Guidelines
+
+1. **Always Review Diffs**: Before making changes, run `git diff` to understand the current state
+2. **Anchor Context**: When editing, reference only the lines shown in the diff
+3. **Verify Changes**: After editing, run `git diff` again to confirm only intended lines changed
+4. **Atomic Commits**: Each commit should represent a single logical change visible in its diff
+5. **Clear Boundaries**: If a change requires touching unrelated code, consider splitting into multiple commits
+
+### Example Workflow
+
+```bash
+# 1. Check current diff
+git diff
+
+# 2. Make focused changes to only the lines that need modification
+# (using Edit tool with exact line matches from the diff)
+
+# 3. Verify the diff contains only intended changes
+git diff
+
+# 4. Commit with a message that describes the diff
+git commit -m "fix: correct validation logic in user input handler"
+
+# 5. Review the committed diff
+git show HEAD
+```
+
+### Integration with Agent Workflows
+
+- **test-autogen-agent**: Generates tests based on diff context, ensuring tests cover only changed functionality
+- **vercel-deploy-specialist**: Deploys based on diff analysis, triggering only affected build steps
+- **repo-auditor**: Audits changes in the diff, not the entire codebase, for faster feedback
+
+### Compliance
+
+- All PRs must show clean, focused diffs
+- Commits containing unrelated changes will be flagged in review
+- Agents that produce noisy diffs will be corrected or disabled
+- Diff-based coding is enforced by code review and audit processes
 
 ## Testing Policy
 
@@ -75,6 +235,37 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 - Include setup/teardown as needed
 - Ensure tests are deterministic and isolated
 
+### Coverage Enforcement
+
+**Minimum Threshold**: 80% global coverage (lines, branches, functions, statements)
+
+**Tools**: Vitest + c8 (primary) or Jest + Istanbul
+
+**CI Enforcement**:
+- CI fails if coverage drops below 80%
+- PR blocked on coverage regression
+- Coverage delta reported in PR comments
+
+**Coverage Reporting**:
+- HTML report: `coverage/index.html`
+- LCOV format for CI integration
+- Uploaded as artifact on every PR
+
+**Exclusions** (documented only):
+- Auto-generated files (justified in config)
+- Type definitions (*.d.ts)
+- Test setup files
+
+**Agent Requirements**:
+- Every new/modified function must have tests
+- No PR without tests for business logic
+- Coverage gaps trigger `/@claude check coverage`
+- Agent must run `npm run test:coverage` before commit
+
+**Manual Triggers**:
+- `/@claude check coverage`: Full coverage audit + gap report
+- `/generate-tests [path]`: Auto-generate missing tests
+
 ## Compliance and Audit
 
 ### Audit Requirements
@@ -110,13 +301,45 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 
 ### Accessibility Auditing
 
-**Requirements:**
-- All UIs must be accessible (WCAG 2.1 AA minimum)
+**Requirements (WCAG 2.1 AA minimum)**:
+- All UIs must pass Playwright + axe-core accessibility tests
+- Zero CRITICAL accessibility violations allowed
 - Keyboard navigation fully functional
 - Screen reader compatible
-- Proper ARIA attributes
-- Color contrast ratios meet standards
-- A11y agent runs on every PR
+- Proper ARIA attributes where needed
+- Color contrast ratios 4.5:1 (normal text), 3:1 (large text)
+- All interactive elements focusable and operable via keyboard
+- All images have descriptive alt text
+- All form inputs have associated labels
+- Proper document structure (landmarks, headings, semantic HTML)
+
+**Testing Tools**:
+- Playwright + @axe-core/playwright (automated)
+- Manual keyboard navigation testing
+- Screen reader testing (recommended)
+
+**CI Enforcement**:
+- Accessibility tests run on every PR
+- Failed tests block merge
+- Playwright reports uploaded as artifacts
+- Accessibility findings in audit logs
+
+**Coverage Scope**:
+- All pages and routes
+- All interactive components
+- All form elements
+- All navigation patterns
+- All modal/dialog components
+
+**Agent Requirements**:
+- Run `npm run test:a11y` before commit
+- Review Playwright reports for violations
+- Fix all violations before PR submission
+- Document accessibility considerations in PR description
+
+**Manual Triggers**:
+- `npm run test:a11y`: Run full accessibility test suite
+- Review Playwright HTML report at `playwright-report/index.html`
 
 ## Security Rules
 
@@ -164,12 +387,12 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 
 ### Development Workflow
 
-1. **Plan**: Break down feature/fix into testable steps
+1. **Plan**: Break down feature/fix into testable steps. End every plan with unresolved questions list (if any). Extreme concision required
 2. **Test**: Write tests first (TDD) or alongside implementation
 3. **Implement**: Write minimal code to pass tests
 4. **Verify**: Run tests, lint, build locally
-5. **Commit**: Clear commit messages with audit trail
-6. **PR**: Submit with description and checklist
+5. **Commit**: Extremely concise messages. Sacrifice grammar for brevity
+6. **PR**: Submit via GitHub CLI (`gh pr create`). Primary method for all GitHub ops
 7. **Review**: Automated + human review required
 8. **Deploy**: Automated deployment on merge to main
 
@@ -180,16 +403,27 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 - PRs require passing CI and human approval
 - Protected branches enforce all checks
 
+### GitHub Operations
+
+**REQUIRED**: Use GitHub CLI (`gh`) as primary method for all GitHub interactions
+
+- **PRs**: `gh pr create`, `gh pr list`, `gh pr view`, `gh pr merge`
+- **Issues**: `gh issue create`, `gh issue list`, `gh issue view`, `gh issue close`
+- **Status**: `gh pr status`, `gh pr checks`
+- **Reviews**: `gh pr review`, `gh pr comment`
+
+Do NOT use web URLs or manual processes. CLI ensures reproducibility + audit trail
+
 ### Commit Messages
 
-- Use conventional commits format
-- Clear, descriptive messages
+- Conventional commits format
+- Extreme concision. Sacrifice grammar
 - Reference issues/PRs when applicable
 - Examples:
-  - `feat: add warp-ui visualization component`
-  - `fix: resolve coverage reporting in CI`
-  - `docs: update CLAUDE.md with new audit policy`
-  - `test: add E2E tests for deployment flow`
+  - `feat: warp-ui viz component`
+  - `fix: CI coverage report`
+  - `docs: CLAUDE.md audit policy`
+  - `test: E2E deploy flow`
 
 ## Agentic Orchestration
 
@@ -213,16 +447,108 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 - Exactly one task in_progress at any time
 - Complete current tasks before starting new ones
 
+### Agent Self-Review and Cross-Review
+
+**Self-Review Protocol**: Every agent MUST review its own output before completion
+
+1. **Pre-Commit Review**: Analyze own code changes via `git diff`
+   - Check coverage: all new/modified code has tests
+   - Verify style: TypeScript strict, no `any`, follows conventions
+   - Validate diff: only intended lines changed
+   - Confirm audit trail: clear, concise commit message
+
+2. **Post-Implementation Audit**: Run automated checks **BEFORE EVERY COMMIT**
+   - **MANDATORY**: ALL checks must pass before `git commit`
+   - **TEST LOOP**: If any check fails, fix and re-run ALL checks
+   - **NO EXCEPTIONS**: Never commit broken code
+
+   **Required checks (run in order)**:
+   1. `npm run lint` - Must pass with 0 errors
+   2. `npm test` - All unit tests must pass
+   3. `npm run test:coverage` - Coverage 80% threshold
+   4. **Validate coverage artifacts** - MUST verify:
+      - `[ -f coverage/lcov.info ]` - File exists
+      - `[ -s coverage/lcov.info ]` - File non-empty
+      - `head -1 coverage/lcov.info` - Starts with `TN:` or `SF:`
+      - `[ -f coverage/coverage-summary.json ]` - Summary exists
+   5. **Security audit workflows** - MUST verify:
+      - NO checkout of PR head in privileged workflows
+      - NO `ref: ${{ github.event.pull_request.head.ref }}` with write permissions
+      - NO execution of untrusted code (package.json, build scripts)
+      - Grep workflows: `grep -r "pull_request.head" .github/workflows/`
+   6. `npm run build` - Build must succeed
+
+   **If Playwright tests added**:
+   7. Verify `npm run test:a11y` would pass in CI (can't run locally without server)
+
+   **Enforcement**:
+   - Agent MUST NOT commit until all checks pass
+   - Agent MUST document test results before commit
+   - Agent MUST fix failures immediately, not "later"
+   - CI failure = agent failed self-review protocol
+
+3. **Self-Critique**: Document gaps in work summary
+   - Unresolved edge cases
+   - Areas needing human review
+   - Potential improvements
+
+**Cross-Review Protocol**: Agents review other agents' work when triggered
+
+1. **Conflict Detection**: Before modifying agent-touched files
+   - Check `git log [file]` for recent agent commits
+   - Review existing tests for overlap
+   - Coordinate via commit messages if conflict likely
+
+2. **Agent-to-Agent Review Triggers**:
+   - `/@claude review-agent [agent-name]`: Full audit of agent's recent work
+   - Auto-trigger: When agent modifies another agent's files (notify in commit)
+   - CI failure: Agent that broke build must self-diagnose or request cross-review
+
+3. **Review Scope**:
+   - Code quality: style, structure, patterns
+   - Test coverage: gaps, missing edge cases
+   - Security: exposed secrets, auth issues
+   - Performance: bundle size, Core Web Vitals
+   - Accessibility: WCAG compliance
+
+4. **Conflict Avoidance**:
+   - Lock mechanism: One agent per file at a time (via commit messages)
+   - Coordination: Agents announce intent in PR comments before major refactors
+   - Merge conflicts: Agent that caused conflict resolves it
+
+**Review Output Format**:
+```
+## Agent Self-Review: [agent-name]
+
+### Changes Made
+- file:line: description
+
+### Tests Added/Updated
+- test-file: coverage
+
+### Self-Audit Results
+-  Tests pass
+-  Coverage 80%
+-  Build succeeds
+-  Diff clean
+
+### Gaps/Risks
+- [issue]: [description]
+
+### Review Status
+[PASS/NEEDS_HUMAN_REVIEW]
+```
+
 ## Progress Tracking
 
 ### PR Updates
 
 Claude must update PR comments with:
-- ✅ Completed modules
-- 🔄 In-progress modules
-- ⏳ Pending modules
-- 📊 CI status summary
-- 📋 Next actionable steps
+-  Completed modules
+-  In-progress modules
+-  Pending modules
+-  CI status summary
+-  Next actionable steps
 
 ### Status Reporting
 
@@ -235,15 +561,15 @@ Claude must update PR comments with:
 
 ### Automated Review Checks
 
-- ✅ No hidden dependencies
-- ✅ Reproducible build
-- ✅ Next.js App Router structure confirmed
-- ✅ Tailwind configuration correct
-- ✅ Tests present and passing
-- ✅ CI workflow functional
-- ✅ Coverage meets threshold
-- ✅ No security vulnerabilities
-- ✅ Audit logs generated
+-  No hidden dependencies
+-  Reproducible build
+-  Next.js App Router structure confirmed
+-  Tailwind configuration correct
+-  Tests present and passing
+-  CI workflow functional
+-  Coverage meets threshold
+-  No security vulnerabilities
+-  Audit logs generated
 
 ### Human Review Requirements
 

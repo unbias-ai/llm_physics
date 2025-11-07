@@ -1,4 +1,7 @@
 name: CI
+permissions:
+  contents: read
+  pull-requests: write
 
 on:
   push:
@@ -24,8 +27,100 @@ jobs:
       - name: Lint code
         run: npm run lint
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests with coverage
+      - name: Run tests with coverage
+        run: npm run test:coverage
 
+      - name: Debug - List coverage directory
+        if: always()
+        run: |
+          echo "=== Coverage directory contents ==="
+          ls -lah coverage/ || echo "Coverage directory not found"
+          echo ""
+          echo "=== Checking lcov.info ==="
+          if [ -f coverage/lcov.info ]; then
+            echo "File exists: $(wc -c < coverage/lcov.info) bytes"
+            echo "First line: $(head -1 coverage/lcov.info)"
+            echo "Last line: $(tail -1 coverage/lcov.info)"
+          else
+            echo "ERROR: coverage/lcov.info NOT FOUND"
+          fi
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: Validate coverage file
+        id: coverage-check
+        run: |
+          echo "=== Validating coverage/lcov.info ==="
+
+          if [ ! -f coverage/lcov.info ]; then
+            echo "❌ ERROR: lcov.info not found"
+            ls -lah coverage/ || echo "Coverage directory not found"
+            exit 1
+          fi
+
+          if [ ! -s coverage/lcov.info ]; then
+            echo "❌ ERROR: lcov.info is empty"
+            ls -lah coverage/lcov.info
+            exit 1
+          fi
+
+          # Check first line starts with TN: or SF:
+          FIRST_LINE=$(head -n 1 coverage/lcov.info)
+          if [[ "$FIRST_LINE" != TN:* ]] && [[ "$FIRST_LINE" != SF:* ]]; then
+            echo "❌ ERROR: lcov.info has invalid format"
+            echo "First line: $FIRST_LINE"
+            echo "Expected: TN: or SF:"
+            head -5 coverage/lcov.info
+            exit 1
+          fi
+
+          echo "✅ lcov.info is VALID"
+          echo "   Size: $(wc -c < coverage/lcov.info) bytes"
+          echo "   Format: $FIRST_LINE"
+          echo "exists=true" >> $GITHUB_OUTPUT
       - name: Build Next.js
         run: npm run build
+
+  accessibility:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run accessibility tests
+        run: npm run test:a11y
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Check for accessibility violations
+        if: always()
+        run: |
+          if [ -f playwright-report/results.json ]; then
+            echo "Accessibility test results available"
+          else
+            echo "Warning: No accessibility results found"
+          fi
