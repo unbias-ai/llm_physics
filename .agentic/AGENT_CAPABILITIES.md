@@ -356,9 +356,9 @@ Design your agent to meet at least Level 1 requirements for basic contribution.
 
 After self-assessment, agents can claim certification:
 
-**Level 1 Certified**: ✅ Can handle basic contributions
-**Level 2 Certified**: ✅✅ Can handle standard features
-**Level 3 Certified**: ✅✅✅ Can handle complex architecture
+**Level 1 Certified**:  Can handle basic contributions
+**Level 2 Certified**:  Can handle standard features
+**Level 3 Certified**:  Can handle complex architecture
 
 **How to Certify**:
 1. Complete self-assessment checklist

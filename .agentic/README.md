@@ -17,23 +17,23 @@ This directory contains **universal protocols, standards, and examples** for AI 
 
 ```
 .agentic/
-├── protocols/              # Core protocol definitions
-│   ├── core-workflow.md    # PTIV workflow (mandatory)
-│   ├── testing-standards.md # Test coverage and patterns
-│   ├── security-compliance.md # Security and audit requirements
-│   └── git-conventions.md  # Git workflow and commit standards
-│
-├── examples/               # Reference implementations
-│   ├── test-generation-workflow.md
-│   ├── feature-implementation-workflow.md
-│   └── bug-fix-workflow.md (planned)
-│
-├── templates/              # Reusable templates
-│   ├── agent-spec-template.md (planned)
-│   ├── workflow-template.md (planned)
-│   └── test-template.tsx (planned)
-│
-└── README.md              # This file
+ protocols/              # Core protocol definitions
+    core-workflow.md    # PTIV workflow (mandatory)
+    testing-standards.md # Test coverage and patterns
+    security-compliance.md # Security and audit requirements
+    git-conventions.md  # Git workflow and commit standards
+
+ examples/               # Reference implementations
+    test-generation-workflow.md
+    feature-implementation-workflow.md
+    bug-fix-workflow.md (planned)
+
+ templates/              # Reusable templates
+    agent-spec-template.md (planned)
+    workflow-template.md (planned)
+    test-template.tsx (planned)
+
+ README.md              # This file
 ```
 
 ---
@@ -85,7 +85,7 @@ This directory contains **universal protocols, standards, and examples** for AI 
 
 **File**: `protocols/core-workflow.md`
 
-**Description**: The PTIV (Plan → Test → Implement → Verify) workflow that ALL agents MUST follow for code changes.
+**Description**: The PTIV (Plan  Test  Implement  Verify) workflow that ALL agents MUST follow for code changes.
 
 **Key Points**:
 - Plan: Break down tasks, create subtask list
@@ -184,7 +184,7 @@ Boilerplate for common test patterns.
 ### For All Agents
 
 1. **Always read before writing**: Understand existing code
-2. **Follow PTIV religiously**: Plan → Test → Implement → Verify
+2. **Follow PTIV religiously**: Plan  Test  Implement  Verify
 3. **Test comprehensively**: Achieve >95% coverage
 4. **Commit atomically**: One logical change per commit
 5. **Document thoroughly**: Update relevant docs
@@ -230,9 +230,9 @@ See [AGENTS.md](/AGENTS.md) for detailed capability requirements.
 
 **Versioning Scheme**: Semantic Versioning (semver)
 
-- **Major**: Breaking changes (1.0.0 → 2.0.0)
-- **Minor**: New features, backward compatible (1.0.0 → 1.1.0)
-- **Patch**: Bug fixes, clarifications (1.0.0 → 1.0.1)
+- **Major**: Breaking changes (1.0.0  2.0.0)
+- **Minor**: New features, backward compatible (1.0.0  1.1.0)
+- **Patch**: Bug fixes, clarifications (1.0.0  1.0.1)
 
 **Deprecation Policy**:
 - Deprecated features marked clearly

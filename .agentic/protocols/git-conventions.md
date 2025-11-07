@@ -189,12 +189,12 @@ EOF
 Each commit should represent a single logical change:
 
 ```bash
-# ✅ GOOD - Atomic commits
+#  GOOD - Atomic commits
 git commit -m "feat: add User model"
 git commit -m "feat: add user registration endpoint"
 git commit -m "test: add tests for user registration"
 
-# ❌ BAD - Monolithic commit
+#  BAD - Monolithic commit
 git commit -m "add user feature with tests and docs"
 ```
 
@@ -382,7 +382,7 @@ git commit --amend -m "new message"
 git add forgotten-file.ts
 git commit --amend --no-edit
 
-# ⚠️ WARNING: Only amend commits that haven't been pushed
+#  WARNING: Only amend commits that haven't been pushed
 # If already pushed, create new commit instead
 ```
 
@@ -398,7 +398,7 @@ git rebase -i HEAD~3
 # squash = combine with previous commit
 # drop = remove commit
 
-# ⚠️ WARNING: Only rebase commits not yet pushed
+#  WARNING: Only rebase commits not yet pushed
 ```
 
 ---

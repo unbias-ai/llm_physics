@@ -24,7 +24,7 @@
 
 ### Testing (MANDATORY)
 - [ ] All tests pass locally: `npm test`
-- [ ] Coverage ≥80%: `npm run test:coverage`
+- [ ] Coverage 80%: `npm run test:coverage`
 - [ ] Accessibility tests pass (if UI changes): `npm run test:a11y`
 - [ ] Build succeeds: `npm run build`
 - [ ] **Husky pre-commit hook ran successfully** (or manually ran all checks)
@@ -59,10 +59,10 @@
 
 ```bash
 # Example output:
-✅ Lint: PASS
-✅ Tests: PASS (X/X tests)
-✅ Coverage: PASS (X% all metrics)
-✅ Build: PASS
+ Lint: PASS
+ Tests: PASS (X/X tests)
+ Coverage: PASS (X% all metrics)
+ Build: PASS
 ```
 
 ## Diff Audit

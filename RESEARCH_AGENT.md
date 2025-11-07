@@ -1,4 +1,4 @@
-# RESEARCH_AGENT.md — Read-Only Agent Codebase Guide
+# RESEARCH_AGENT.md  Read-Only Agent Codebase Guide
 
 **Purpose**: Enable external research agents (read-only) to analyze, understand, and report on llm_physics codebase
 
@@ -26,59 +26,59 @@ Monorepo for reproducible physics LLM tooling. Next.js frontends + agentic autom
 
 ```
 /
-├── app/                    # Next.js App Router (React 19)
-├── public/                 # Static assets
-├── tests/                  # Test suites (Jest, RTL, Playwright)
-├── scripts/                # Build/automation scripts
-├── artifacts/              # Generated outputs (audit logs, reports)
-├── mocks/                  # Test mocks/fixtures
-├── .claude/                # Claude Code config (agents, commands)
-├── .claude-plugin/         # Plugin marketplace definitions
-├── .agentic/               # Agentic workflow protocols/examples
-├── CLAUDE.md               # PRIMARY: Agent policies (READ THIS FIRST)
-├── RESEARCH_AGENT.md       # This file
-├── AGENTS.md               # Agent capabilities/usage
-├── ARCHITECTURE.md         # System architecture
-├── CONTRIBUTING.md         # Contribution guidelines
-└── package.json            # Dependencies
+ app/                    # Next.js App Router (React 19)
+ public/                 # Static assets
+ tests/                  # Test suites (Jest, RTL, Playwright)
+ scripts/                # Build/automation scripts
+ artifacts/              # Generated outputs (audit logs, reports)
+ mocks/                  # Test mocks/fixtures
+ .claude/                # Claude Code config (agents, commands)
+ .claude-plugin/         # Plugin marketplace definitions
+ .agentic/               # Agentic workflow protocols/examples
+ CLAUDE.md               # PRIMARY: Agent policies (READ THIS FIRST)
+ RESEARCH_AGENT.md       # This file
+ AGENTS.md               # Agent capabilities/usage
+ ARCHITECTURE.md         # System architecture
+ CONTRIBUTING.md         # Contribution guidelines
+ package.json            # Dependencies
 ```
 
 ### Key Directories
 
-#### `/app` — Next.js Application
+#### `/app`  Next.js Application
 - **App Router** (not Pages Router)
 - React Server Components by default
 - `layout.tsx`: Root layout
 - `page.tsx`: Home page
 - Structure: `app/[route]/page.tsx`
 
-#### `/tests` — Test Suites
+#### `/tests`  Test Suites
 - Unit tests: `*.test.tsx`, `*.test.ts`
 - Component tests: React Testing Library
 - E2E tests: Playwright
 - Coverage: 95% minimum threshold
 - Run: `npm test`
 
-#### `/.claude` — Claude Code Configuration
+#### `/.claude`  Claude Code Configuration
 - **agents/**: Agent definitions (test-autogen, vercel-deploy, repo-auditor)
 - **commands/**: Slash commands (/generate-tests, /deploy-vercel, /audit-repo)
 - **settings.json**: Enabled agents/plugins
 
-#### `/.agentic` — Workflow Protocols
+#### `/.agentic`  Workflow Protocols
 - **protocols/**: Security, testing, git conventions, core workflow
 - **examples/**: Feature implementation, test generation workflows
 - READ THESE to understand agentic patterns
 
-#### `/scripts` — Automation
+#### `/scripts`  Automation
 - Build scripts
 - Verification scripts (e.g., `verify_audit_block.js`)
 - CI/CD helpers
 
-#### `/artifacts` — Generated Outputs
+#### `/artifacts`  Generated Outputs
 - Audit logs (90-day retention)
 - Deployment reports
 - Test coverage reports
-- DO NOT modify — read-only artifacts
+- DO NOT modify  read-only artifacts
 
 ---
 
@@ -153,13 +153,13 @@ Monorepo for reproducible physics LLM tooling. Next.js frontends + agentic autom
 
 **All coding work uses diff-based approach:**
 
-✅ **WITH Diff** (required):
+ **WITH Diff** (required):
 - Context = changed lines only (`git diff`)
 - Prevents accidental edits
 - Clean audit trail
 - Focused commits
 
-❌ **WITHOUT Diff** (forbidden):
+ **WITHOUT Diff** (forbidden):
 - Entire file/repo as context
 - Bloated commits
 - Hallucinated edits
@@ -215,7 +215,7 @@ npm run test:e2e         # Playwright E2E
 ### Agent Protocols
 
 Read `.agentic/protocols/` for:
-- **core-workflow.md**: Plan → Test → Implement → Verify
+- **core-workflow.md**: Plan  Test  Implement  Verify
 - **testing-standards.md**: TDD, coverage, test organization
 - **git-conventions.md**: Commits, branches, PRs
 - **security-compliance.md**: Auth, secrets, auditing
@@ -451,21 +451,21 @@ rg --files-without-match "\.test\." app/
 ## Limitations (What You CANNOT Do)
 
 As read-only research agent:
-- ❌ Modify code
-- ❌ Create commits
-- ❌ Push changes
-- ❌ Execute write operations
-- ❌ Deploy applications
-- ❌ Modify configurations
+-  Modify code
+-  Create commits
+-  Push changes
+-  Execute write operations
+-  Deploy applications
+-  Modify configurations
 
 You CAN:
-- ✅ Read all files
-- ✅ Analyze codebase
-- ✅ Search patterns
-- ✅ Generate reports
-- ✅ Identify issues
-- ✅ Recommend improvements
-- ✅ Document findings
+-  Read all files
+-  Analyze codebase
+-  Search patterns
+-  Generate reports
+-  Identify issues
+-  Recommend improvements
+-  Document findings
 
 ---
 

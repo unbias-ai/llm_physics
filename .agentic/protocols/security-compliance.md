@@ -42,15 +42,15 @@ node scripts/verify_audit_block.js
 ### Proper Secret Management
 
 ```typescript
-// ❌ BAD - Never do this
+//  BAD - Never do this
 const API_KEY = "sk_live_123456789abcdef"
 const DATABASE_URL = "postgres://user:pass@host:5432/db"
 
-// ✅ GOOD - Use environment variables
+//  GOOD - Use environment variables
 const API_KEY = process.env.API_KEY
 const DATABASE_URL = process.env.DATABASE_URL
 
-// ✅ GOOD - Validate required secrets
+//  GOOD - Validate required secrets
 if (!process.env.API_KEY) {
   throw new Error('API_KEY environment variable is required')
 }
@@ -126,14 +126,14 @@ function sanitizeEmail(email: string): string {
 ### SQL Injection Prevention
 
 ```typescript
-// ❌ BAD - SQL injection vulnerable
+//  BAD - SQL injection vulnerable
 const query = `SELECT * FROM users WHERE email = '${userEmail}'`
 
-// ✅ GOOD - Use parameterized queries
+//  GOOD - Use parameterized queries
 const query = 'SELECT * FROM users WHERE email = ?'
 db.execute(query, [userEmail])
 
-// ✅ GOOD - Use ORM (Drizzle, Prisma)
+//  GOOD - Use ORM (Drizzle, Prisma)
 await db.select().from(users).where(eq(users.email, userEmail))
 ```
 
@@ -143,16 +143,16 @@ await db.select().from(users).where(eq(users.email, userEmail))
 // React automatically escapes JSX content
 // But be careful with dangerouslySetInnerHTML
 
-// ❌ BAD - XSS vulnerable
+//  BAD - XSS vulnerable
 <div dangerouslySetInnerHTML={{ __html: userContent }} />
 
-// ✅ GOOD - Sanitize first
+//  GOOD - Sanitize first
 import DOMPurify from 'dompurify'
 
 const sanitized = DOMPurify.sanitize(userContent)
 <div dangerouslySetInnerHTML={{ __html: sanitized }} />
 
-// ✅ BETTER - Avoid dangerouslySetInnerHTML entirely
+//  BETTER - Avoid dangerouslySetInnerHTML entirely
 <div>{userContent}</div>
 ```
 
@@ -399,7 +399,7 @@ node scripts/verify_audit_block.js
 ### 1. Trusting Client-Side Validation
 
 ```typescript
-// ❌ BAD - Client-side only
+//  BAD - Client-side only
 function SubmitForm() {
   const handleSubmit = (e) => {
     if (!email.includes('@')) {
@@ -410,7 +410,7 @@ function SubmitForm() {
   }
 }
 
-// ✅ GOOD - Server-side validation
+//  GOOD - Server-side validation
 // app/api/submit/route.ts
 export async function POST(request: NextRequest) {
   const { email } = await request.json()
@@ -427,12 +427,12 @@ export async function POST(request: NextRequest) {
 ### 2. Exposing Internal Errors
 
 ```typescript
-// ❌ BAD - Exposes internal details
+//  BAD - Exposes internal details
 catch (error) {
   return NextResponse.json({ error: error.message }, { status: 500 })
 }
 
-// ✅ GOOD - Generic error message
+//  GOOD - Generic error message
 catch (error) {
   console.error('Internal error:', error) // Log internally
   return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -442,11 +442,11 @@ catch (error) {
 ### 3. Using Weak Crypto
 
 ```typescript
-// ❌ BAD - MD5 is broken
+//  BAD - MD5 is broken
 import md5 from 'md5'
 const hash = md5(password)
 
-// ✅ GOOD - Use bcrypt or argon2
+//  GOOD - Use bcrypt or argon2
 import bcrypt from 'bcrypt'
 const hash = await bcrypt.hash(password, 10)
 ```
@@ -454,10 +454,10 @@ const hash = await bcrypt.hash(password, 10)
 ### 4. Missing CORS Configuration
 
 ```typescript
-// ❌ BAD - Allow all origins
+//  BAD - Allow all origins
 res.setHeader('Access-Control-Allow-Origin', '*')
 
-// ✅ GOOD - Specific origins
+//  GOOD - Specific origins
 const allowedOrigins = ['https://example.com']
 const origin = req.headers.get('origin')
 

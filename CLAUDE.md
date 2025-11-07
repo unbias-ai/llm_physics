@@ -1,4 +1,4 @@
-# CLAUDE.md — Agentic Policy for llm_physics
+# CLAUDE.md  Agentic Policy for llm_physics
 
 ## Project Overview
 
@@ -85,8 +85,34 @@ Monorepo for reproducible physics LLM tooling with Next.js/Tailwind frontends an
 - **Components**: lowercase-hyphenated (warp-ui, audit-console, orb-panel)
 - **Files**: PascalCase for components (WarpUI.tsx), camelCase for utilities (formatData.ts)
 - **Tests**: ComponentName.test.tsx or __tests__/ComponentName.test.tsx
-- **Formatting**: Minimal, no emojis, no noise
-- **Conciseness**: Extreme brevity required. Sacrifice grammar for concision. Apply to all commits, messages, documentation
+
+## CRITICAL: ASCII-Only Mandate
+
+**ALL agents MUST comply**:
+
+1. **NO non-ASCII characters**: No emojis, no em-dashes, no smart quotes, no Unicode symbols
+2. **ASCII-only**: Use standard ASCII (0x00-0x7F) for ALL text
+3. **Replacements**:
+   - Em-dash (--) -> double hyphen (--)
+   - Smart quotes ('') -> straight quotes (' ')
+   - Arrows (->) -> ASCII arrows (->)
+   - Bullets (*) -> asterisks (*)
+4. **Enforcement**: enforce-no-emoji.yml workflow auto-removes violations
+5. **Violation = CI failure**: Non-ASCII blocks merge
+
+## CRITICAL: Extreme Conciseness Mandate
+
+**ALL communication MUST be minimal**:
+
+1. **Sacrifice grammar for brevity**: "Tests pass" not "All tests are passing successfully"
+2. **No filler words**: "Done" not "I have completed the task"
+3. **No explanations unless asked**: Show results, not process
+4. **Token budget**: Every word costs money, minimize ruthlessly
+5. **Examples**:
+   - BAD: "I've implemented the feature you requested and it's working great!"
+   - GOOD: "Feature implemented. Tests pass."
+   - BAD: "There seems to be an issue with the build process"
+   - GOOD: "Build failed. Error: [specific error]"
 
 ## Code Style
 
@@ -281,7 +307,7 @@ git show HEAD
 - Keyboard navigation fully functional
 - Screen reader compatible
 - Proper ARIA attributes where needed
-- Color contrast ratios ≥4.5:1 (normal text), ≥3:1 (large text)
+- Color contrast ratios 4.5:1 (normal text), 3:1 (large text)
 - All interactive elements focusable and operable via keyboard
 - All images have descriptive alt text
 - All form inputs have associated labels
@@ -439,7 +465,7 @@ Do NOT use web URLs or manual processes. CLI ensures reproducibility + audit tra
    **Required checks (run in order)**:
    1. `npm run lint` - Must pass with 0 errors
    2. `npm test` - All unit tests must pass
-   3. `npm run test:coverage` - Coverage ≥80% threshold
+   3. `npm run test:coverage` - Coverage 80% threshold
    4. **Validate coverage artifacts** - MUST verify:
       - `[ -f coverage/lcov.info ]` - File exists
       - `[ -s coverage/lcov.info ]` - File non-empty
@@ -501,10 +527,10 @@ Do NOT use web URLs or manual processes. CLI ensures reproducibility + audit tra
 - test-file: coverage
 
 ### Self-Audit Results
-- ✅ Tests pass
-- ✅ Coverage ≥80%
-- ✅ Build succeeds
-- ✅ Diff clean
+-  Tests pass
+-  Coverage 80%
+-  Build succeeds
+-  Diff clean
 
 ### Gaps/Risks
 - [issue]: [description]
@@ -518,11 +544,11 @@ Do NOT use web URLs or manual processes. CLI ensures reproducibility + audit tra
 ### PR Updates
 
 Claude must update PR comments with:
-- ✅ Completed modules
-- 🔄 In-progress modules
-- ⏳ Pending modules
-- 📊 CI status summary
-- 📋 Next actionable steps
+-  Completed modules
+-  In-progress modules
+-  Pending modules
+-  CI status summary
+-  Next actionable steps
 
 ### Status Reporting
 
@@ -535,15 +561,15 @@ Claude must update PR comments with:
 
 ### Automated Review Checks
 
-- ✅ No hidden dependencies
-- ✅ Reproducible build
-- ✅ Next.js App Router structure confirmed
-- ✅ Tailwind configuration correct
-- ✅ Tests present and passing
-- ✅ CI workflow functional
-- ✅ Coverage meets threshold
-- ✅ No security vulnerabilities
-- ✅ Audit logs generated
+-  No hidden dependencies
+-  Reproducible build
+-  Next.js App Router structure confirmed
+-  Tailwind configuration correct
+-  Tests present and passing
+-  CI workflow functional
+-  Coverage meets threshold
+-  No security vulnerabilities
+-  Audit logs generated
 
 ### Human Review Requirements
 

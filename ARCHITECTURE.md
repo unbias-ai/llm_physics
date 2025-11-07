@@ -31,44 +31,44 @@
 ### High-Level Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                    User / Developer                          │
-└────────────────┬─────────────────────────────────────────────┘
-                 │
-                 ▼
-┌──────────────────────────────────────────────────────────────┐
-│              AI Agent Layer (Universal)                      │
-│  ┌──────────┬───────────┬──────────┬────────────────────┐   │
-│  │ Claude   │ GPT-4     │ Gemini   │ Future Agents      │   │
-│  └──────────┴───────────┴──────────┴────────────────────┘   │
-│             │                                                │
-│             ▼                                                │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │     Agentic Orchestration Protocol (.agentic/)      │   │
-│  │  - Core Workflows    - Security Compliance          │   │
-│  │  - Testing Standards - Multi-Agent Coordination     │   │
-│  └─────────────────────────────────────────────────────┘   │
-└────────────────┬─────────────────────────────────────────────┘
-                 │
-                 ▼
-┌──────────────────────────────────────────────────────────────┐
-│                  Application Layer                           │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │          Next.js 16 App Router                       │   │
-│  │  - React 19 Server Components                        │   │
-│  │  - Tailwind CSS v4                                   │   │
-│  │  - TypeScript (strict mode)                          │   │
-│  └─────────────────────────────────────────────────────┘   │
-└────────────────┬─────────────────────────────────────────────┘
-                 │
-                 ▼
-┌──────────────────────────────────────────────────────────────┐
-│                 Infrastructure Layer                         │
-│  ┌────────────┬────────────┬─────────────┬──────────────┐  │
-│  │   Vercel   │   GitHub   │   MCP       │   Audit      │  │
-│  │  (Deploy)  │   (CI/CD)  │  (Services) │   (Logs)     │  │
-│  └────────────┴────────────┴─────────────┴──────────────┘  │
-└──────────────────────────────────────────────────────────────┘
+
+                    User / Developer                          
+
+                 
+                 
+
+              AI Agent Layer (Universal)                      
+     
+   Claude    GPT-4      Gemini    Future Agents         
+     
+                                                             
+                                                             
+     
+       Agentic Orchestration Protocol (.agentic/)         
+    - Core Workflows    - Security Compliance             
+    - Testing Standards - Multi-Agent Coordination        
+     
+
+                 
+                 
+
+                  Application Layer                           
+     
+            Next.js 16 App Router                          
+    - React 19 Server Components                           
+    - Tailwind CSS v4                                      
+    - TypeScript (strict mode)                             
+     
+
+                 
+                 
+
+                 Infrastructure Layer                         
+    
+     Vercel      GitHub      MCP          Audit        
+    (Deploy)     (CI/CD)    (Services)    (Logs)       
+    
+
 ```
 
 ### Key Characteristics
@@ -139,15 +139,15 @@ npm ci && npm run build
 
 **Test Pyramid**:
 ```
-       ┌─────────┐
-       │   E2E   │  Playwright (few, critical paths)
-       └─────────┘
-     ┌─────────────┐
-     │  Component  │  React Testing Library (moderate)
-     └─────────────┘
-   ┌─────────────────┐
-   │   Unit Tests    │  Jest (many, fast, isolated)
-   └─────────────────┘
+       
+          E2E     Playwright (few, critical paths)
+       
+     
+       Component    React Testing Library (moderate)
+     
+   
+      Unit Tests      Jest (many, fast, isolated)
+   
 ```
 
 ### 5. Agent-First Development
@@ -209,85 +209,85 @@ npm ci && npm run build
 
 ```
 llm_physics/
-│
-├── .agentic/                      # Universal agentic protocols
-│   ├── protocols/                 # Protocol definitions
-│   │   ├── core-workflow.md
-│   │   ├── testing-standards.md
-│   │   ├── security-compliance.md
-│   │   └── git-conventions.md
-│   ├── examples/                  # Example workflows
-│   │   ├── test-generation-workflow.md
-│   │   ├── feature-implementation-workflow.md
-│   │   └── bug-fix-workflow.md
-│   └── templates/                 # Reusable templates
-│       ├── agent-spec-template.md
-│       ├── workflow-template.md
-│       └── test-template.tsx
-│
-├── .claude/                       # Claude-specific configs
-│   ├── agents/
-│   │   ├── test-autogen-agent.md
-│   │   ├── vercel-deploy-specialist.md
-│   │   └── repo-auditor.md
-│   ├── commands/
-│   │   ├── generate-tests.md
-│   │   ├── deploy-vercel.md
-│   │   └── audit-repo.md
-│   ├── settings.json
-│   └── README.md
-│
-├── .claude-plugin/
-│   └── marketplace.json           # Version-pinned plugins
-│
-├── .github/
-│   └── workflows/
-│       ├── ci.yml                 # Standard CI
-│       ├── claude-pr-review.yml   # Automated PR review
-│       └── claude-vercel-ci.yml   # Deployment workflow
-│
-├── app/                           # Next.js application
-│   ├── page.tsx                   # Root page
-│   ├── layout.tsx                 # Root layout
-│   └── globals.css                # Global styles
-│
-├── tests/                         # Test files
-│   └── page.test.tsx              # Component tests
-│
-├── scripts/                       # Utility scripts
-│   └── verify_audit_block.js      # Compliance checker
-│
-├── artifacts/                     # Generated artifacts
-│   └── audit_logs/                # Audit trail (gitignored)
-│       └── .gitkeep
-│
-├── docs/                          # Additional documentation
-│
-├── mocks/                         # Test mocks
-│
-├── public/                        # Static assets
-│
-├── coverage/                      # Test coverage (gitignored)
-│
-├── .next/                         # Next.js build (gitignored)
-│
-├── node_modules/                  # Dependencies (gitignored)
-│
-├── .mcp.json                      # MCP server configurations
-├── .gitignore
-├── AGENTS.md                      # Universal agent guide
-├── ARCHITECTURE.md                # This file
-├── CLAUDE.md                      # Project policies
-├── CONTRIBUTING.md                # Contribution guide
-├── README.md                      # User documentation
-├── package.json
-├── package-lock.json
-├── tsconfig.json
-├── next.config.ts
-├── jest.config.js
-├── jest.setup.js
-├── eslint.config.mjs
-└── postcss.config.mjs
+
+ .agentic/                      # Universal agentic protocols
+    protocols/                 # Protocol definitions
+       core-workflow.md
+       testing-standards.md
+       security-compliance.md
+       git-conventions.md
+    examples/                  # Example workflows
+       test-generation-workflow.md
+       feature-implementation-workflow.md
+       bug-fix-workflow.md
+    templates/                 # Reusable templates
+        agent-spec-template.md
+        workflow-template.md
+        test-template.tsx
+
+ .claude/                       # Claude-specific configs
+    agents/
+       test-autogen-agent.md
+       vercel-deploy-specialist.md
+       repo-auditor.md
+    commands/
+       generate-tests.md
+       deploy-vercel.md
+       audit-repo.md
+    settings.json
+    README.md
+
+ .claude-plugin/
+    marketplace.json           # Version-pinned plugins
+
+ .github/
+    workflows/
+        ci.yml                 # Standard CI
+        claude-pr-review.yml   # Automated PR review
+        claude-vercel-ci.yml   # Deployment workflow
+
+ app/                           # Next.js application
+    page.tsx                   # Root page
+    layout.tsx                 # Root layout
+    globals.css                # Global styles
+
+ tests/                         # Test files
+    page.test.tsx              # Component tests
+
+ scripts/                       # Utility scripts
+    verify_audit_block.js      # Compliance checker
+
+ artifacts/                     # Generated artifacts
+    audit_logs/                # Audit trail (gitignored)
+        .gitkeep
+
+ docs/                          # Additional documentation
+
+ mocks/                         # Test mocks
+
+ public/                        # Static assets
+
+ coverage/                      # Test coverage (gitignored)
+
+ .next/                         # Next.js build (gitignored)
+
+ node_modules/                  # Dependencies (gitignored)
+
+ .mcp.json                      # MCP server configurations
+ .gitignore
+ AGENTS.md                      # Universal agent guide
+ ARCHITECTURE.md                # This file
+ CLAUDE.md                      # Project policies
+ CONTRIBUTING.md                # Contribution guide
+ README.md                      # User documentation
+ package.json
+ package-lock.json
+ tsconfig.json
+ next.config.ts
+ jest.config.js
+ jest.setup.js
+ eslint.config.mjs
+ postcss.config.mjs
 ```
 
 ### Directory Ownership
@@ -310,14 +310,14 @@ llm_physics/
 
 ```
 app/
-├── page.tsx              # Root route "/"
-├── layout.tsx            # Root layout (wraps all pages)
-├── globals.css           # Global Tailwind imports
-│
-└── [future features]/
-    ├── warp-ui/          # Warp visualization component
-    ├── audit-console/    # Audit log viewer
-    └── orb-panel/        # Physics simulation panel
+ page.tsx              # Root route "/"
+ layout.tsx            # Root layout (wraps all pages)
+ globals.css           # Global Tailwind imports
+
+ [future features]/
+     warp-ui/          # Warp visualization component
+     audit-console/    # Audit log viewer
+     orb-panel/        # Physics simulation panel
 ```
 
 ### Component Design Patterns
@@ -362,14 +362,14 @@ Place reusable components in `app/components/`:
 
 ```
 app/
-├── components/
-│   ├── ui/              # Reusable UI primitives
-│   │   ├── Button.tsx
-│   │   ├── Input.tsx
-│   │   └── Modal.tsx
-│   └── features/        # Feature-specific components
-│       ├── WarpUI.tsx
-│       └── AuditConsole.tsx
+ components/
+    ui/              # Reusable UI primitives
+       Button.tsx
+       Input.tsx
+       Modal.tsx
+    features/        # Feature-specific components
+        WarpUI.tsx
+        AuditConsole.tsx
 ```
 
 ---
@@ -400,20 +400,20 @@ Responsibilities:
 ### Agent Communication Protocol
 
 ```
-┌─────────────┐
-│   Agent A   │
-└──────┬──────┘
-       │ 1. Write state
-       ▼
-┌─────────────────────┐
-│  Shared File System │
-│  artifacts/agent_state/
-└──────┬──────────────┘
-       │ 2. Read state
-       ▼
-┌─────────────┐
-│   Agent B   │
-└─────────────┘
+
+   Agent A   
+
+        1. Write state
+       
+
+  Shared File System 
+  artifacts/agent_state/
+
+        2. Read state
+       
+
+   Agent B   
+
 ```
 
 **Message Format**:
@@ -462,9 +462,9 @@ graph TD
 ### Pipeline Stages
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                    CI/CD Pipeline                            │
-└──────────────────────────────────────────────────────────────┘
+
+                    CI/CD Pipeline                            
+
 
 On PR:
   1. Checkout code
@@ -477,7 +477,7 @@ On PR:
   8. Run audit script (node scripts/verify_audit_block.js)
   9. Upload artifacts (coverage, audit logs)
   10. Comment on PR with results
-  11. ✅ Pass or ❌ Fail
+  11.  Pass or  Fail
 
 On Merge to Main:
   1. All PR checks must pass
@@ -488,7 +488,7 @@ On Merge to Main:
   6. Validate Core Web Vitals
   7. On failure: automatic rollback
   8. Generate deployment audit log
-  9. ✅ Deploy successful or ❌ Rollback
+  9.  Deploy successful or  Rollback
 ```
 
 ### Workflow Files
@@ -563,9 +563,9 @@ function processInput(input: unknown): SafeInput {
 #### 2. **Secret Management**
 
 ```
-┌─────────────────────────────────────┐
-│     Secret Management Flow          │
-└─────────────────────────────────────┘
+
+     Secret Management Flow          
+
 
 Development:
   - Use .env.local (gitignored)
@@ -631,18 +631,18 @@ def enforce_compliance():
 ```
 Test Pyramid:
 
-       ┌─────────────┐
-       │     E2E     │  ~5% (Playwright)
-       │   (Slow)    │
-       └─────────────┘
-     ┌───────────────────┐
-     │    Component      │  ~20% (React Testing Library)
-     │    (Medium)       │
-     └───────────────────┘
-   ┌───────────────────────┐
-   │       Unit            │  ~75% (Jest)
-   │       (Fast)          │
-   └───────────────────────┘
+       
+            E2E       ~5% (Playwright)
+          (Slow)    
+       
+     
+         Component        ~20% (React Testing Library)
+         (Medium)       
+     
+   
+          Unit              ~75% (Jest)
+          (Fast)          
+   
 ```
 
 ### Test Patterns
@@ -713,9 +713,9 @@ module.exports = {
 ### Vercel Deployment Flow
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│              Vercel Deployment Flow                     │
-└─────────────────────────────────────────────────────────┘
+
+              Vercel Deployment Flow                     
+
 
 1. Trigger:
    - git push to main
@@ -805,10 +805,10 @@ def deploy_with_rollback():
 
 ```
 artifacts/audit_logs/
-├── audit-2025-11-06T13-00-00-000Z.json
-├── deploy-2025-11-06T14-00-00-000Z.json
-├── agent-actions-2025-11-06.jsonl
-└── mcp-calls-2025-11-06.jsonl
+ audit-2025-11-06T13-00-00-000Z.json
+ deploy-2025-11-06T14-00-00-000Z.json
+ agent-actions-2025-11-06.jsonl
+ mcp-calls-2025-11-06.jsonl
 ```
 
 **Log Retention**: 90 days minimum
@@ -846,10 +846,10 @@ artifacts/audit_logs/
 ## Future Architecture Evolution
 
 ### Phase 1: Current (MVP)
-- ✅ Next.js + Tailwind baseline
-- ✅ Agentic orchestration
-- ✅ CI/CD pipeline
-- ✅ Audit and compliance
+-  Next.js + Tailwind baseline
+-  Agentic orchestration
+-  CI/CD pipeline
+-  Audit and compliance
 
 ### Phase 2: Enhanced UI (Q1 2026)
 - [ ] Warp UI visualization
@@ -898,12 +898,12 @@ artifacts/audit_logs/
 **File-Based Routing**:
 ```
 app/
-├── page.tsx           → /
-├── about/
-│   └── page.tsx       → /about
-└── posts/
-    └── [id]/
-        └── page.tsx   → /posts/:id
+ page.tsx            /
+ about/
+    page.tsx        /about
+ posts/
+     [id]/
+         page.tsx    /posts/:id
 ```
 
 #### Tailwind CSS v4

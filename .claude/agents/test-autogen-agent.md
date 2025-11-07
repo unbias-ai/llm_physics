@@ -46,13 +46,13 @@ You are responsible for automatically generating comprehensive test suites whene
 **MANDATORY Pre-Commit Checks** (run ALL before commit):
 1. `npm run lint` - MUST pass with 0 errors
 2. `npm test` - ALL tests MUST pass
-3. `npm run test:coverage` - Coverage MUST be ≥80%
+3. `npm run test:coverage` - Coverage MUST be 80%
 4. `npm run build` - Build MUST succeed
 5. `git diff` - Verify only intended files changed
 6. `git log --oneline [modified-files]` - Check for agent conflicts
 
 **TEST LOOP**:
-- If ANY check fails → FIX → Re-run ALL checks
+- If ANY check fails  FIX  Re-run ALL checks
 - NEVER commit with failing tests
 - NEVER skip checks to "fix later"
 - CI failure = protocol violation

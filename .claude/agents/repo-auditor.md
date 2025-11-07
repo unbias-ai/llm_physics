@@ -57,7 +57,7 @@ Enforce CLAUDE.md policies. Audit security, performance, and accessibility on ev
 - All endpoints require authentication
 - Public APIs must have rate limiting
 - Bundle size < 350KB (gzipped)
-- Test coverage ≥80% (CLAUDE.md updated from 95%)
+- Test coverage 80% (CLAUDE.md updated from 95%)
 - Zero CRITICAL issues
 - All a11y checks passing
 
@@ -68,7 +68,7 @@ Enforce CLAUDE.md policies. Audit security, performance, and accessibility on ev
    - Security: exposed secrets, auth patterns, vulnerabilities
    - Performance: bundle size, Core Web Vitals
    - Accessibility: `npm run test:a11y`, review Playwright reports
-   - Coverage: `npm run test:coverage`, check ≥80% threshold
+   - Coverage: `npm run test:coverage`, check 80% threshold
 2. Verify artifact generation: `artifacts/audit_logs/[timestamp].json`
 3. Cross-check CLAUDE.md for threshold updates
 4. Review recent PRs for recurring violations

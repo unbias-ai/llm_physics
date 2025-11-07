@@ -264,22 +264,22 @@ npm test -- --coverage --collectCoverageFrom="app/components/WarpUI.tsx"
 # PASS tests/components/WarpUI.test.tsx
 #   WarpUI Component
 #     initial render
-#       ✓ should render with default speed of 0
-#       ✓ should render with custom initial speed
-#       ✓ should not show status message initially
+#        should render with default speed of 0
+#        should render with custom initial speed
+#        should not show status message initially
 #     user interactions
-#       ✓ should update speed when slider changes
-#       ✓ should activate warp drive when button clicked
-#       ✓ should call onSpeedChange callback when activated
-#       ✓ should call onSpeedChange when speed changes after activation
-#       ✓ should not call onSpeedChange when speed changes before activation
+#        should update speed when slider changes
+#        should activate warp drive when button clicked
+#        should call onSpeedChange callback when activated
+#        should call onSpeedChange when speed changes after activation
+#        should not call onSpeedChange when speed changes before activation
 #     edge cases
-#       ✓ should handle missing onSpeedChange prop
-#       ✓ should handle rapid speed changes
-#       ✓ should handle min and max speeds
+#        should handle missing onSpeedChange prop
+#        should handle rapid speed changes
+#        should handle min and max speeds
 #     accessibility
-#       ✓ should have accessible label for slider
-#       ✓ should have accessible button
+#        should have accessible label for slider
+#        should have accessible button
 #
 # Tests: 13 passed, 13 total
 # Coverage: 100%

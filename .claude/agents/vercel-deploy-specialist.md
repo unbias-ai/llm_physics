@@ -50,7 +50,7 @@ This agent initiates Vercel deploys using configured MCP tools, waits for comple
 ### Self-Review Protocol
 
 **Pre-Deployment**:
-1. Verify CI passed: tests + coverage ≥80%
+1. Verify CI passed: tests + coverage 80%
 2. Verify accessibility tests passed: `npm run test:a11y`
 3. Check `git diff` for deployment config changes
 4. Validate env vars match Vercel dashboard

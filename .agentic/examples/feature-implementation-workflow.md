@@ -422,26 +422,26 @@ export default function Home() {
 ```bash
 # Run linter
 npm run lint
-# ✓ No errors
+#  No errors
 
 # Run tests
 npm test
-# ✓ All tests pass
+#  All tests pass
 
 # Check coverage
 npm test -- --coverage
 # Coverage:
 # - ThemeContext: 100%
 # - ThemeToggle: 100%
-# - Overall: >95% ✓
+# - Overall: >95% 
 
 # Build
 npm run build
-# ✓ Build successful
+#  Build successful
 
 # Run audit
 node scripts/verify_audit_block.js
-# ✓ Audit passed
+#  Audit passed
 ```
 
 ### Manual Testing
@@ -529,12 +529,12 @@ Users want to customize UI appearance based on preference and reduce eye strain 
 - System preference detection
 
 ## Features
-- ✨ Toggle between light and dark themes
-- 💾 Preference persists across sessions
-- 🎨 Smooth transitions between themes
-- ♿ Fully accessible (ARIA, keyboard)
-- 📱 Respects system preference as default
-- 🚫 No flash of unstyled content (FOUC)
+-  Toggle between light and dark themes
+-  Preference persists across sessions
+-  Smooth transitions between themes
+-  Fully accessible (ARIA, keyboard)
+-  Respects system preference as default
+-  No flash of unstyled content (FOUC)
 
 ## Screenshots
 (Add screenshots here)
