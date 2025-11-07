@@ -24,21 +24,6 @@ describe('Canvas2DRenderer', () => {
       solve: mockSolve,
     });
 
-    // Mock canvas context
-    HTMLCanvasElement.prototype.getContext = jest.fn(
-      () =>
-        ({
-          fillStyle: '',
-          strokeStyle: '',
-          lineWidth: 0,
-          fillRect: jest.fn(),
-          beginPath: jest.fn(),
-          moveTo: jest.fn(),
-          lineTo: jest.fn(),
-          stroke: jest.fn(),
-        }) as unknown as CanvasRenderingContext2D
-    );
-
     // Mock requestAnimationFrame (execute once, then stop)
     global.requestAnimationFrame = jest.fn((cb) => {
       // Call callback once for coverage, then mock to prevent infinite loop

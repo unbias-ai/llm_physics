@@ -14,7 +14,7 @@ import * as deviceDetector from '../lib/device-detector';
 jest.mock('../lib/device-detector', () => ({
   ...jest.requireActual('../lib/device-detector'),
   detectDeviceCapabilities: jest.fn(),
-  createPixelRatioListener: jest.fn(() => jest.fn()),
+  createPixelRatioListener: jest.fn((_callback: (ratio: number) => void) => jest.fn()),
   getAccessibilityMessage: jest.fn(() => '3D visualization enabled'),
 }));
 

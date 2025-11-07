@@ -11,8 +11,8 @@ import { RenderCapability } from '../lib/device-detector';
 // Mock device detector
 jest.mock('../lib/device-detector', () => ({
   detectDeviceCapabilities: jest.fn(),
-  createPixelRatioListener: jest.fn(() => jest.fn()),
-  getAccessibilityMessage: jest.fn((capabilities) => {
+  createPixelRatioListener: jest.fn((_callback: (ratio: number) => void) => jest.fn()),
+  getAccessibilityMessage: jest.fn((capabilities: { renderPath: string }) => {
     if (capabilities.renderPath === 'WEBGL_2_OPTIMIZED') {
       return '3D visualization enabled with hardware acceleration';
     }
