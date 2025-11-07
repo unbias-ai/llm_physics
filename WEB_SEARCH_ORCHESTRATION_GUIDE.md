@@ -8,7 +8,7 @@
 ## Part 1: Web Search Techniques (Fast + Targeted)
 
 ### When to Search (Not From Training Knowledge)
-- **Tech stack updates** (Next.js 22.x → latest, Node versions)
+- **Tech stack updates** (Next.js 22.x  latest, Node versions)
 - **Vercel + GitHub Actions best practices** (always search; changes monthly)
 - **Agent orchestration frameworks** (new in 2025: LangGraph, CrewAI, LangChain updates)
 - **Code patterns** (diff-based workflows, checkpoint strategies, multi-agent coordination)
@@ -94,15 +94,15 @@ Image optimization Lighthouse CI Next.js
 #### Avoid These (Already in Training Data, Too Broad)
 ```bash
 # Too general:
-❌ "GitHub Actions"
-❌ "multi-agent systems"
-❌ "CI/CD best practices"
-❌ "optimization"
+ "GitHub Actions"
+ "multi-agent systems"
+ "CI/CD best practices"
+ "optimization"
 
 # Too old or stable:
-❌ "GitHub Actions basics tutorial"
-❌ "Next.js fundamentals"
-❌ "Jest setup guide"
+ "GitHub Actions basics tutorial"
+ "Next.js fundamentals"
+ "Jest setup guide"
 ```
 
 ---
@@ -116,16 +116,16 @@ Image optimization Lighthouse CI Next.js
 **Optimized Model**:
 ```
 Sonnet 4.5 (Orchestrator)
-  ├─ Decompose task into subtasks
-  ├─ Route to specialized workers
-  └─ Validate + integrate results
+   Decompose task into subtasks
+   Route to specialized workers
+   Validate + integrate results
 
 Workers (Haiku 4.5 or Sonnet 4.5):
-  ├─ test-generation-worker (tdd patterns)
-  ├─ coverage-validator-worker (lcov, artifact checks)
-  ├─ security-auditor-worker (CodeQL, untrusted checkout detection)
-  ├─ accessibility-worker (Playwright, a11y rules)
-  └─ deployment-monitor-worker (Vercel status, performance)
+   test-generation-worker (tdd patterns)
+   coverage-validator-worker (lcov, artifact checks)
+   security-auditor-worker (CodeQL, untrusted checkout detection)
+   accessibility-worker (Playwright, a11y rules)
+   deployment-monitor-worker (Vercel status, performance)
 ```
 
 **Benefits**:
@@ -171,10 +171,10 @@ Use checkpoints to capture state before major edits, allowing quick rollback if 
    - ONE commit = ONE logical feature
 
 4. **NEVER commit multiple times for same feature**:
-   - ❌ Commit 1: Initial attempt (broken)
-   - ❌ Commit 2: Fix attempt 1 (broken)
-   - ❌ Commit 3: Fix attempt 2 (success)
-   - ✓ Commit 1: Feature complete (success)
+   -  Commit 1: Initial attempt (broken)
+   -  Commit 2: Fix attempt 1 (broken)
+   -  Commit 3: Fix attempt 2 (success)
+   -  Commit 1: Feature complete (success)
 ```
 
 **CI Integration**:
@@ -184,7 +184,7 @@ Add to `.github/workflows/ci.yml`:
     run: |
       COMMIT_COUNT=$(git rev-list --count main..HEAD)
       if [ $COMMIT_COUNT -gt 3 ]; then
-        echo "❌ Too many commits ($COMMIT_COUNT). Agent must squash or use checkpoints."
+        echo " Too many commits ($COMMIT_COUNT). Agent must squash or use checkpoints."
         exit 1
       fi
 ```
@@ -198,17 +198,17 @@ A puppeteer-style paradigm for LLM-based multi-agent collaboration, where a cent
 
 **For llm_physics**:
 1. **Orchestrator decides agent routing based on PR type**:
-   - UI component → route to `accessibility-worker` + `component-tester`
-   - API layer → route to `security-auditor` + `integration-tester`
-   - Docs → route to `markdown-formatter` + `link-validator`
+   - UI component  route to `accessibility-worker` + `component-tester`
+   - API layer  route to `security-auditor` + `integration-tester`
+   - Docs  route to `markdown-formatter` + `link-validator`
 
 2. **Routing rules** (YAML in `.mcp.json`):
    ```yaml
    routes:
-     - pattern: "app/*.tsx" → test-worker + accessibility-worker
-     - pattern: ".github/workflows/*.yml" → security-auditor + syntax-validator
-     - pattern: "docs/*.md" → formatter + spell-check
-     - pattern: "jest.config.js" → coverage-validator + performance-tester
+     - pattern: "app/*.tsx"  test-worker + accessibility-worker
+     - pattern: ".github/workflows/*.yml"  security-auditor + syntax-validator
+     - pattern: "docs/*.md"  formatter + spell-check
+     - pattern: "jest.config.js"  coverage-validator + performance-tester
    ```
 
 3. **Fallback**: If routing uncertain, orchestrator asks human for guidance (in PR comment).
@@ -246,8 +246,8 @@ Memory-based communication involves shared knowledge repositories accessible to 
    - Humans scan weekly for drift/anomalies
 
 3. **Async Coordination**:
-   - Worker 1 finishes coverage tests → appends `AGENT_PROGRESS_LOG.md`
-   - Worker 2 reads log → knows coverage already passing, skips that check
+   - Worker 1 finishes coverage tests  appends `AGENT_PROGRESS_LOG.md`
+   - Worker 2 reads log  knows coverage already passing, skips that check
    - Reduces redundant work by ~30%
 
 ---
@@ -255,9 +255,9 @@ Memory-based communication involves shared knowledge repositories accessible to 
 ### Strategy 5: Failure Mode Detection + Auto-Recovery
 
 **Common Failures** (from PR #3):
-- ❌ Jest .spec.ts picked up by coverage (schema conflict)
-- ❌ lcov.info empty or invalid (validation missing)
-- ❌ Untrusted PR head checkout (security risk)
+-  Jest .spec.ts picked up by coverage (schema conflict)
+-  lcov.info empty or invalid (validation missing)
+-  Untrusted PR head checkout (security risk)
 
 **Detection Rules** (add to CI + agent protocols):
 ```yaml
@@ -294,19 +294,19 @@ failure_modes:
     run: |
       # Check 1: Jest config
       if ! grep -q "testPathIgnorePatterns.*spec" jest.config.js; then
-        echo "❌ Jest config mismatch. Correcting..."
+        echo " Jest config mismatch. Correcting..."
         # Auto-fix logic here
       fi
       
       # Check 2: Coverage validation
       if [ ! -s coverage/lcov.info ]; then
-        echo "❌ lcov.info invalid. Re-running tests..."
+        echo " lcov.info invalid. Re-running tests..."
         npm test
       fi
       
       # Check 3: Security audit
       if grep -r "pull_request.head" .github/workflows/ | grep -q "write"; then
-        echo "❌ Untrusted PR checkout detected. Failing for manual review."
+        echo " Untrusted PR checkout detected. Failing for manual review."
         exit 1
       fi
 ```
@@ -316,27 +316,27 @@ failure_modes:
 ## Part 3: Specific Optimization Roadmap
 
 ### Phase 1: Immediate (Before Merging PR #3)
-- [ ] **Search**: "GitHub Actions CI performance optimization 2025" → find new caching techniques
+- [ ] **Search**: "GitHub Actions CI performance optimization 2025"  find new caching techniques
 - [ ] **Action**: Add `@actions/cache` for npm dependencies (save ~5s per build)
-- [ ] **Search**: "Jest coverage parallelization" → enable multi-worker coverage generation
+- [ ] **Search**: "Jest coverage parallelization"  enable multi-worker coverage generation
 - [ ] **Action**: Add `--workers=max` to Jest config (save ~2s per test suite)
 
 ### Phase 2: Short-Term (After PR #3)
-- [ ] **Search**: "LangGraph subagent coordination patterns" → implement worker routing
+- [ ] **Search**: "LangGraph subagent coordination patterns"  implement worker routing
 - [ ] **Action**: Create `.claude/orchestrator-agent/` with routing rules
-- [ ] **Search**: "Vercel MCP auto-deployment workflows" → enable auto-deploy on main
+- [ ] **Search**: "Vercel MCP auto-deployment workflows"  enable auto-deploy on main
 - [ ] **Action**: Add `vercel-deploy-specialist` subagent
 
 ### Phase 3: Medium-Term (Q1 2026)
-- [ ] **Search**: "Lighthouse CI performance budgets GitHub Actions" → add performance gates
+- [ ] **Search**: "Lighthouse CI performance budgets GitHub Actions"  add performance gates
 - [ ] **Action**: Integrate lighthouse-ci into CI (fail on perf regression)
-- [ ] **Search**: "SBOM generation supply chain security GitHub Actions" → add dependency tracking
+- [ ] **Search**: "SBOM generation supply chain security GitHub Actions"  add dependency tracking
 - [ ] **Action**: Add cyclonedx-bom reporter (for 2028 AI job applications)
 
 ### Phase 4: Long-Term (Q2 2026+)
-- [ ] **Search**: "Multi-repository orchestration GitHub Actions" → scale beyond llm_physics
+- [ ] **Search**: "Multi-repository orchestration GitHub Actions"  scale beyond llm_physics
 - [ ] **Action**: Use learnings from this project for unbias.ai multi-agent orchestration
-- [ ] **Search**: "Federated agent coordination across repos" → connect unbias.ai + llm_physics
+- [ ] **Search**: "Federated agent coordination across repos"  connect unbias.ai + llm_physics
 - [ ] **Action**: Create central orchestrator (Sonnet 4.5) managing all unbias-ai projects
 
 ---
@@ -361,10 +361,10 @@ failure_modes:
 | Product documentation | Self-promotion | High | Feature lists, not best practices |
 
 ### Avoid These
-- ❌ Outdated Stack Overflow answers (pre-2024)
-- ❌ ChatGPT/Claude generations (hallucination risk; always verify)
-- ❌ Generic "X best practices" blog posts (usually not 2025-relevant)
-- ❌ Paywalled content (arXiv preprints are free alternative)
+-  Outdated Stack Overflow answers (pre-2024)
+-  ChatGPT/Claude generations (hallucination risk; always verify)
+-  Generic "X best practices" blog posts (usually not 2025-relevant)
+-  Paywalled content (arXiv preprints are free alternative)
 
 ---
 
@@ -372,8 +372,8 @@ failure_modes:
 
 **Before searching**:
 - [ ] Is the question about current tech/trends (search) or fundamental concepts (don't search)?
-- [ ] Are recent updates likely? (yes → search; no → use training knowledge)
-- [ ] Is there a 2025 version? (yes → search; no → use 2024/2023 training knowledge)
+- [ ] Are recent updates likely? (yes  search; no  use training knowledge)
+- [ ] Is there a 2025 version? (yes  search; no  use 2024/2023 training knowledge)
 
 **During search**:
 - [ ] Copy URLs to AGENT_PROGRESS_LOG.md for human audit
