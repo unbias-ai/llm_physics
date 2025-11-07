@@ -130,7 +130,6 @@ HTMLCanvasElement.prototype.getContext = function (
       transform: jest.fn(),
       rect: jest.fn(),
       clip: jest.fn(),
-      strokeStyle: '',
       font: '10px sans-serif',
       textAlign: 'start' as CanvasTextAlign,
       textBaseline: 'alphabetic' as CanvasTextBaseline,
