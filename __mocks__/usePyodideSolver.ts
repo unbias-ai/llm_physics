@@ -26,7 +26,6 @@ export function usePyodideSolver() {
   const solve = useCallback(
     (
       equation: string,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       _variable: string = 'x',
       xMin: number = -10,
       xMax: number = 10,

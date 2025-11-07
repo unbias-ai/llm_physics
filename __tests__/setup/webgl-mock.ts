@@ -63,36 +63,45 @@ class WebGL2RenderingContextMock {
   uniformMatrix4fv = jest.fn();
 }
 
-// Mock Canvas.getContext
-const originalGetContext = HTMLCanvasElement.prototype.getContext;
+// Mock Canvas.getContext with proper TypeScript overloads
+// Type-safe mock implementation
 HTMLCanvasElement.prototype.getContext = function (
-  contextType: string,
-  contextAttributes?: unknown
-): unknown {
+  this: HTMLCanvasElement,
+  contextId: string,
+  _options?: unknown
+): RenderingContext | null {
   // SSR: If window or document are deleted from global, return null
   if (!(global as Record<string, unknown>).window || !(global as Record<string, unknown>).document) {
     return null;
   }
 
-  if (contextType === 'webgl2') {
-    return new WebGL2RenderingContextMock();
+  if (contextId === 'webgl2' || contextId === 'webgl' || contextId === 'experimental-webgl') {
+    return new WebGL2RenderingContextMock() as unknown as WebGL2RenderingContext;
   }
-  if (contextType === 'webgl' || contextType === 'experimental-webgl') {
-    return new WebGL2RenderingContextMock(); // Use same mock
-  }
-  if (contextType === '2d') {
+
+  if (contextId === '2d') {
     return {
+      canvas: this,
       fillStyle: '',
       strokeStyle: '',
       lineWidth: 0,
+      globalAlpha: 1,
+      globalCompositeOperation: 'source-over',
+      imageSmoothingEnabled: true,
       fillRect: jest.fn(),
       clearRect: jest.fn(),
-      getImageData: jest.fn(() => ({ data: new Uint8ClampedArray(4) })),
+      getImageData: jest.fn(() => ({
+        data: new Uint8ClampedArray(4),
+        width: 1,
+        height: 1,
+        colorSpace: 'srgb' as PredefinedColorSpace
+      })),
       putImageData: jest.fn(),
       createImageData: jest.fn((w: number, h: number) => ({
         data: new Uint8ClampedArray(w * h * 4),
         width: w,
         height: h,
+        colorSpace: 'srgb' as PredefinedColorSpace
       })),
       setTransform: jest.fn(),
       drawImage: jest.fn(),
@@ -109,14 +118,34 @@ HTMLCanvasElement.prototype.getContext = function (
       rotate: jest.fn(),
       arc: jest.fn(),
       fill: jest.fn(),
-      measureText: jest.fn(() => ({ width: 0 })),
+      measureText: jest.fn(() => ({
+        width: 0,
+        actualBoundingBoxLeft: 0,
+        actualBoundingBoxRight: 0,
+        fontBoundingBoxAscent: 0,
+        fontBoundingBoxDescent: 0,
+        actualBoundingBoxAscent: 0,
+        actualBoundingBoxDescent: 0,
+      })),
       transform: jest.fn(),
       rect: jest.fn(),
       clip: jest.fn(),
-    };
+      strokeStyle: '',
+      font: '10px sans-serif',
+      textAlign: 'start' as CanvasTextAlign,
+      textBaseline: 'alphabetic' as CanvasTextBaseline,
+    } as unknown as CanvasRenderingContext2D;
   }
-  return originalGetContext.call(this, contextType, contextAttributes);
-};
+
+  if (contextId === 'bitmaprenderer') {
+    return {
+      canvas: this,
+      transferFromImageBitmap: jest.fn(),
+    } as unknown as ImageBitmapRenderingContext;
+  }
+
+  return null;
+} as typeof HTMLCanvasElement.prototype.getContext;
 
 // Mock requestAnimationFrame
 global.requestAnimationFrame = ((cb: FrameRequestCallback) => {

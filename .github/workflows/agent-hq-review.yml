@@ -139,19 +139,40 @@ jobs:
             const fs = require('fs');
             const review = JSON.parse(fs.readFileSync('ai-review.json', 'utf8'));
 
+            // Sanitize text to prevent XSS
+            function sanitize(text) {
+              if (typeof text !== 'string') return String(text);
+              return text
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;')
+                .replace(/\//g, '&#x2F;');
+            }
+
             // Post summary comment
+            const criticalCount = sanitize(review.summary?.criticalCount || 0);
+            const testCoverage = sanitize(review.summary?.testCoverage || 'N/A');
+            const tokenBudget = sanitize(review.summary?.tokenBudget || 'unknown');
+
+            const issueList = review.issues.slice(0, 10).map(issue => {
+              const severity = sanitize(String(issue.severity || 'unknown').toUpperCase());
+              const file = sanitize(issue.file || 'unknown');
+              const line = sanitize(issue.line || 0);
+              const description = sanitize(issue.issue || 'No description');
+              return `- **[${severity}]** \`${file}:${line}\` - ${description}`;
+            }).join('\n');
+
             const summary = `## 🤖 Agent HQ Code Review
 
             **Summary:**
-            - 🔴 Critical: ${review.summary.criticalCount || 0}
-            - 📊 Estimated Test Coverage: ${review.summary.testCoverage || 'N/A'}
-            - 💰 Token Budget: ${review.summary.tokenBudget || 'unknown'}
+            - 🔴 Critical: ${criticalCount}
+            - 📊 Estimated Test Coverage: ${testCoverage}
+            - 💰 Token Budget: ${tokenBudget}
 
             **Issues Found:** ${review.issues.length}
 
-            ${review.issues.slice(0, 10).map(issue =>
-              `- **[${issue.severity.toUpperCase()}]** \`${issue.file}:${issue.line}\` - ${issue.issue}`
-            ).join('\n')}
+            ${issueList}
 
             ${review.issues.length > 10 ? `\n_...and ${review.issues.length - 10} more issues_` : ''}
             `;
@@ -168,11 +189,16 @@ jobs:
               ['critical', 'high'].includes(i.severity)
             ).slice(0, 5)) {
               try {
+                const severity = sanitize(String(issue.severity || 'unknown').toUpperCase());
+                const category = sanitize(issue.category || 'general');
+                const description = sanitize(issue.issue || 'No description');
+                const suggestion = sanitize(issue.suggestion || 'No suggestion');
+
                 await github.rest.pulls.createReviewComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: context.issue.number,
-                  body: `🤖 **${issue.severity.toUpperCase()}** (${issue.category})\n\n${issue.issue}\n\n💡 **Suggestion:** ${issue.suggestion}`,
+                  body: `🤖 **${severity}** (${category})\n\n${description}\n\n💡 **Suggestion:** ${suggestion}`,
                   path: issue.file,
                   line: issue.line,
                   side: 'RIGHT'
