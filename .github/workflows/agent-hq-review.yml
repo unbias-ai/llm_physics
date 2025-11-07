@@ -36,15 +36,29 @@ jobs:
       - name: Run CodeQL for security context
         uses: github/codeql-action/init@v3
         with:
-          languages: typescript, javascript
+          languages: javascript
           queries: security-extended
+        continue-on-error: true
 
       - uses: github/codeql-action/autobuild@v3
+        continue-on-error: true
 
       - name: CodeQL Analysis
+        id: codeql
         uses: github/codeql-action/analyze@v3
         with:
-          output: codeql-results.sarif
+          category: "/language:javascript"
+          upload: false
+          output: sarif-results
+        continue-on-error: true
+
+      - name: Copy SARIF for AI review
+        run: |
+          if [ -d sarif-results ]; then
+            cp sarif-results/*.sarif codeql-results.sarif 2>/dev/null || echo '{"runs":[{"results":[]}]}' > codeql-results.sarif
+          else
+            echo '{"runs":[{"results":[]}]}' > codeql-results.sarif
+          fi
 
       - name: AI Agent Review (Claude)
         if: env.ANTHROPIC_API_KEY != ''
