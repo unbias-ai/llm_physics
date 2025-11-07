@@ -55,8 +55,10 @@ describe('Jest/Playwright Separation', () => {
     // Simulate Jest's pattern matching
     const wouldMatch = testMatch.some((pattern: string) => {
       // Convert glob pattern to regex (simplified)
+      // Escape backslashes first, then other special chars
       const regex = new RegExp(
         pattern
+          .replace(/\\/g, '\\\\')  // Escape backslashes first
           .replace(/\*\*/g, '.*')
           .replace(/\*/g, '[^/]*')
           .replace(/\./g, '\\.')
