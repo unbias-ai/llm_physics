@@ -287,5 +287,74 @@ describe('Device Capability Detection', () => {
       const capabilities = detectDeviceCapabilities();
       expect(capabilities.gpuMemoryMB).toBeLessThan(2048); // Mobile GPU
     });
+
+    it('should detect PowerVR GPU', () => {
+      const mockGL2 = {
+        MAX_TEXTURE_SIZE: 0x0d33,
+        getParameter: jest.fn((param: number) => {
+          if (param === 0x0d33) return 4096;
+          if (param === 37446) return 'PowerVR SGX 543';
+          return null;
+        }),
+        getExtension: jest.fn((name: string) => {
+          if (name === 'WEBGL_debug_renderer_info') {
+            return { UNMASKED_RENDERER_WEBGL: 37446 };
+          }
+          return null;
+        }),
+      } as unknown as WebGL2RenderingContext;
+
+      jest.spyOn(mockCanvas, 'getContext').mockReturnValue(mockGL2);
+      createElementSpy.mockReturnValue(mockCanvas);
+
+      const capabilities = detectDeviceCapabilities();
+      expect(capabilities.gpuMemoryMB).toBe(512); // Low-end mobile
+    });
+
+    it('should detect AMD GPU', () => {
+      const mockGL2 = {
+        MAX_TEXTURE_SIZE: 0x0d33,
+        getParameter: jest.fn((param: number) => {
+          if (param === 0x0d33) return 16384;
+          if (param === 37446) return 'AMD Radeon RX 6800';
+          return null;
+        }),
+        getExtension: jest.fn((name: string) => {
+          if (name === 'WEBGL_debug_renderer_info') {
+            return { UNMASKED_RENDERER_WEBGL: 37446 };
+          }
+          return null;
+        }),
+      } as unknown as WebGL2RenderingContext;
+
+      jest.spyOn(mockCanvas, 'getContext').mockReturnValue(mockGL2);
+      createElementSpy.mockReturnValue(mockCanvas);
+
+      const capabilities = detectDeviceCapabilities();
+      expect(capabilities.gpuMemoryMB).toBe(4096); // Desktop GPU
+    });
+
+    it('should detect Intel integrated GPU', () => {
+      const mockGL2 = {
+        MAX_TEXTURE_SIZE: 0x0d33,
+        getParameter: jest.fn((param: number) => {
+          if (param === 0x0d33) return 8192;
+          if (param === 37446) return 'Intel(R) UHD Graphics 630';
+          return null;
+        }),
+        getExtension: jest.fn((name: string) => {
+          if (name === 'WEBGL_debug_renderer_info') {
+            return { UNMASKED_RENDERER_WEBGL: 37446 };
+          }
+          return null;
+        }),
+      } as unknown as WebGL2RenderingContext;
+
+      jest.spyOn(mockCanvas, 'getContext').mockReturnValue(mockGL2);
+      createElementSpy.mockReturnValue(mockCanvas);
+
+      const capabilities = detectDeviceCapabilities();
+      expect(capabilities.gpuMemoryMB).toBe(2048); // Integrated GPU
+    });
   });
 });

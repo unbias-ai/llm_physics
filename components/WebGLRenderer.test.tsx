@@ -67,8 +67,13 @@ jest.mock('three', () => ({
 
 describe('WebGLRenderer', () => {
   beforeEach(() => {
-    // Mock requestAnimationFrame (don't call callback to prevent infinite loop)
-    global.requestAnimationFrame = jest.fn(() => 0) as unknown as typeof requestAnimationFrame;
+    // Mock requestAnimationFrame (execute once, then stop)
+    global.requestAnimationFrame = jest.fn((cb) => {
+      // Call callback once for coverage, then mock to prevent infinite loop
+      setTimeout(() => cb(0), 0);
+      global.requestAnimationFrame = jest.fn(() => 0) as unknown as typeof requestAnimationFrame;
+      return 0;
+    }) as unknown as typeof requestAnimationFrame;
 
     // Mock performance.now
     global.performance.now = jest.fn(() => 0);

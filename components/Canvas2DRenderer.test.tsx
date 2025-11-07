@@ -39,8 +39,13 @@ describe('Canvas2DRenderer', () => {
         }) as unknown as CanvasRenderingContext2D
     );
 
-    // Mock requestAnimationFrame (don't call callback to prevent infinite loop)
-    global.requestAnimationFrame = jest.fn(() => 0);
+    // Mock requestAnimationFrame (execute once, then stop)
+    global.requestAnimationFrame = jest.fn((cb) => {
+      // Call callback once for coverage, then mock to prevent infinite loop
+      setTimeout(() => cb(0), 0);
+      global.requestAnimationFrame = jest.fn(() => 0);
+      return 0;
+    });
   });
 
   afterEach(() => {

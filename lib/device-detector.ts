@@ -25,11 +25,13 @@ export interface DeviceCapabilities {
  */
 function testWebGL2Support(): { supported: boolean; context: WebGL2RenderingContext | null } {
   // Check for SSR or browser environment
+  /* istanbul ignore next - SSR environments not testable in JSDOM */
   if (typeof window === 'undefined' || typeof document === 'undefined') {
     return { supported: false, context: null };
   }
 
   // Additional check: verify window/document are not null (for test environments)
+  /* istanbul ignore next - SSR edge case not testable in JSDOM */
   if (!window || !document) {
     return { supported: false, context: null };
   }
@@ -48,11 +50,13 @@ function testWebGL2Support(): { supported: boolean; context: WebGL2RenderingCont
  */
 function testWebGL1Support(): { supported: boolean; context: WebGLRenderingContext | null } {
   // Check for SSR or browser environment
+  /* istanbul ignore next - SSR environments not testable in JSDOM */
   if (typeof window === 'undefined' || typeof document === 'undefined') {
     return { supported: false, context: null };
   }
 
   // Additional check: verify window/document are not null (for test environments)
+  /* istanbul ignore next - SSR edge case not testable in JSDOM */
   if (!window || !document) {
     return { supported: false, context: null };
   }
@@ -108,6 +112,7 @@ function getGPUMemory(gl: WebGLRenderingContext | WebGL2RenderingContext | null)
  * Creates large canvas, measures allocation time
  */
 function estimateDeviceRAM(): number {
+  /* istanbul ignore next - SSR environments not testable in JSDOM */
   if (typeof window === 'undefined' || typeof document === 'undefined') {
     return 2048; // SSR fallback
   }

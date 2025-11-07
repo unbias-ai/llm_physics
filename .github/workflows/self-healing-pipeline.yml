@@ -3,6 +3,10 @@
 # Based on: github.blog/agent-hq, vercel.com/guides/github-actions
 
 name: Self-Healing Pipeline
+
+permissions:
+  contents: read
+
 on:
   pull_request:
   push:
@@ -16,6 +20,8 @@ jobs:
   # Stage 1: Emoji Cleanup (Auto-fix)
   emoji-cleanup:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -77,6 +83,8 @@ jobs:
   test-with-checkpoint:
     runs-on: ubuntu-latest
     needs: lint-typecheck
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -143,6 +151,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: test-with-checkpoint
     if: success()
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
