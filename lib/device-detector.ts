@@ -24,7 +24,13 @@ export interface DeviceCapabilities {
  * Test WebGL 2.0 context availability
  */
 function testWebGL2Support(): { supported: boolean; context: WebGL2RenderingContext | null } {
+  // Check for SSR or browser environment
   if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return { supported: false, context: null };
+  }
+
+  // Additional check: verify window/document are not null (for test environments)
+  if (!window || !document) {
     return { supported: false, context: null };
   }
 
@@ -41,7 +47,13 @@ function testWebGL2Support(): { supported: boolean; context: WebGL2RenderingCont
  * Test WebGL 1.0 context availability
  */
 function testWebGL1Support(): { supported: boolean; context: WebGLRenderingContext | null } {
+  // Check for SSR or browser environment
   if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return { supported: false, context: null };
+  }
+
+  // Additional check: verify window/document are not null (for test environments)
+  if (!window || !document) {
     return { supported: false, context: null };
   }
 
@@ -63,12 +75,14 @@ function getGPUMemory(gl: WebGLRenderingContext | WebGL2RenderingContext | null)
   const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
   if (!debugInfo) return 512; // Conservative fallback
 
-  const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) as string;
+  const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) as string | null;
 
   // Parse GPU memory from renderer string (heuristic)
   // Example: "ANGLE (Intel(R) HD Graphics 4000 Direct3D11 vs_5_0 ps_5_0)"
   // Mobile GPUs: Mali, Adreno, PowerVR typically 512MB-4GB
   // Desktop GPUs: NVIDIA, AMD, Intel typically 2GB-24GB
+
+  if (!renderer) return 512; // Conservative fallback for unknown GPU
 
   if (renderer.toLowerCase().includes('mali') || renderer.toLowerCase().includes('adreno')) {
     return 1024; // Mobile GPUs

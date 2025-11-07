@@ -51,7 +51,7 @@ describe('Shader Optimizer', () => {
 
       const result = validateShader(shader, 'fragment');
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain(expect.stringContaining('precision'));
+      expect(result.errors.some(e => e.includes('precision'))).toBe(true);
     });
 
     it('should warn about if-statements in fragment shader', () => {

@@ -52,10 +52,16 @@ export function validateShader(shaderCode: string, type: 'vertex' | 'fragment'):
 
     for (const { pattern, name } of expensiveOps) {
       const matches = shaderCode.match(pattern);
-      if (matches && matches.length > 2) {
-        warnings.push(
-          `Multiple ${name} operations in fragment shader (${matches.length} occurrences). Consider pre-computing in vertex shader.`
-        );
+      if (matches && matches.length > 0) {
+        if (matches.length > 2) {
+          warnings.push(
+            `Multiple ${name} operations in fragment shader (${matches.length} occurrences). Consider pre-computing in vertex shader.`
+          );
+        } else {
+          warnings.push(
+            `Expensive ${name} operation in fragment shader. Consider pre-computing in vertex shader if used per-pixel.`
+          );
+        }
       }
     }
   }
