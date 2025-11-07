@@ -12,11 +12,16 @@ test.describe('Mobile Device Tests', () => {
 
     // Start FPS measurement
     await page.evaluate(() => {
-      (window as any).frameCount = 0;
-      (window as any).startTime = performance.now();
+      interface WindowWithFPS extends Window {
+        frameCount: number;
+        startTime: number;
+      }
+      const win = window as unknown as WindowWithFPS;
+      win.frameCount = 0;
+      win.startTime = performance.now();
 
       const countFrames = () => {
-        (window as any).frameCount++;
+        win.frameCount++;
         requestAnimationFrame(countFrames);
       };
       requestAnimationFrame(countFrames);
@@ -27,8 +32,13 @@ test.describe('Mobile Device Tests', () => {
 
     // Calculate FPS
     const fps = await page.evaluate(() => {
-      const elapsed = performance.now() - (window as any).startTime;
-      const frames = (window as any).frameCount;
+      interface WindowWithFPS extends Window {
+        frameCount: number;
+        startTime: number;
+      }
+      const win = window as unknown as WindowWithFPS;
+      const elapsed = performance.now() - win.startTime;
+      const frames = win.frameCount;
       return (frames / elapsed) * 1000;
     });
 
@@ -83,7 +93,10 @@ test.describe('Mobile Device Tests', () => {
 
     // Verify no errors
     const errors = await page.evaluate(() => {
-      return (window as any).errors || [];
+      interface WindowWithErrors extends Window {
+        errors?: unknown[];
+      }
+      return (window as unknown as WindowWithErrors).errors || [];
     });
 
     expect(errors).toHaveLength(0);

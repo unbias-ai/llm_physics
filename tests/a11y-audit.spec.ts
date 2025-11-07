@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import fs from 'fs';
 
 test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   test('zero CRITICAL violations on homepage', async ({ page }) => {
@@ -13,7 +14,6 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
     const critical = results.violations.filter(v => v.impact === 'critical');
 
     // Save full report
-    const fs = require('fs');
     fs.writeFileSync(
       'screenshots/debug/a11y-report.json',
       JSON.stringify(results, null, 2)
