@@ -23,9 +23,9 @@ jobs:
         id: detect
         run: |
           echo "=== Scanning for non-ASCII characters ==="
-          
-          # Scan markdown files
-          NON_ASCII_FILES=$(grep -rl '[^\x00-\x7F]' *.md .claude/*.md 2>/dev/null || true)
+
+          # Scan markdown files (use -P for Perl regex to properly interpret \x escapes)
+          NON_ASCII_FILES=$(grep -Prl '[^\x00-\x7F]' *.md .claude/*.md 2>/dev/null || true)
           
           if [ -n "$NON_ASCII_FILES" ]; then
             echo "found=true" >> $GITHUB_OUTPUT
@@ -40,7 +40,7 @@ jobs:
             for file in $NON_ASCII_FILES; do
               echo ""
               echo "File: $file"
-              grep --color=always -n '[^\x00-\x7F]' "$file" || true
+              grep --color=always -P -n '[^\x00-\x7F]' "$file" || true
             done
           else
             echo "found=false" >> $GITHUB_OUTPUT
@@ -76,8 +76,8 @@ jobs:
         if: steps.detect.outputs.found == 'true'
         run: |
           echo "=== Verifying cleanup ==="
-          
-          REMAINING=$(grep -rl '[^\x00-\x7F]' *.md .claude/*.md 2>/dev/null || true)
+
+          REMAINING=$(grep -Prl '[^\x00-\x7F]' *.md .claude/*.md 2>/dev/null || true)
           
           if [ -n "$REMAINING" ]; then
             echo "ERROR: Non-ASCII characters still present in:"
