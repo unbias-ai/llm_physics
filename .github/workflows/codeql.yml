@@ -1,5 +1,4 @@
 # CodeQL Security Analysis
-# Disable GitHub's "Default Setup" in Settings → Code security → CodeQL analysis
 # This advanced configuration provides comprehensive security scanning
 
 name: "CodeQL Security Scan"

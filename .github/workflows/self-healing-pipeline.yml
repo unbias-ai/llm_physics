@@ -167,13 +167,12 @@ jobs:
       - name: Check coverage threshold
         id: coverage
         run: |
-          npm test -- --coverage --json --outputFile=coverage.json
+          npm test -- --coverage --silent
 
           LINES_PCT=$(node -p "
-            const data = require('./coverage.json');
-            data.coverageMap ?
-              Object.values(data.coverageMap).reduce((sum, file) => sum + file.lines.pct, 0) /
-              Object.keys(data.coverageMap).length : 100
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
+            summary.total.lines.pct || 0
           ")
 
           echo "pct=$LINES_PCT" >> $GITHUB_OUTPUT
