@@ -42,10 +42,10 @@ describe('Device Capability Detection', () => {
         }),
       } as unknown as WebGL2RenderingContext;
 
-      jest.spyOn(mockCanvas, 'getContext').mockImplementation((contextId: string) => {
+      jest.spyOn(mockCanvas, 'getContext').mockImplementation(((contextId: string) => {
         if (contextId === 'webgl2') return mockGL2;
         return null;
-      });
+      }) as typeof mockCanvas.getContext);
 
       createElementSpy.mockReturnValue(mockCanvas);
 
@@ -101,13 +101,13 @@ describe('Device Capability Detection', () => {
         }),
       } as unknown as WebGLRenderingContext;
 
-      jest.spyOn(mockCanvas, 'getContext').mockImplementation((contextId: string) => {
+      jest.spyOn(mockCanvas, 'getContext').mockImplementation(((contextId: string) => {
         if (contextId === 'webgl2') return null; // No WebGL 2
         if (contextId === 'webgl' || contextId === 'experimental-webgl') {
           return mockGL1;
         }
         return null;
-      });
+      }) as typeof mockCanvas.getContext);
 
       createElementSpy.mockReturnValue(mockCanvas);
 
@@ -231,7 +231,7 @@ describe('Device Capability Detection', () => {
         getExtension: jest.fn(() => null), // No extensions
       } as unknown as WebGL2RenderingContext;
 
-      jest.spyOn(mockCanvas, 'getContext').mockReturnValue(mockGL2);
+      (jest.spyOn(mockCanvas, 'getContext') as jest.Mock).mockReturnValue(mockGL2);
       createElementSpy.mockReturnValue(mockCanvas);
 
       const capabilities = detectDeviceCapabilities();
@@ -255,7 +255,7 @@ describe('Device Capability Detection', () => {
         }),
       } as unknown as WebGL2RenderingContext;
 
-      jest.spyOn(mockCanvas, 'getContext').mockReturnValue(mockGL2);
+      (jest.spyOn(mockCanvas, 'getContext') as jest.Mock).mockReturnValue(mockGL2);
       createElementSpy.mockReturnValue(mockCanvas);
 
       const capabilities = detectDeviceCapabilities();
@@ -277,11 +277,11 @@ describe('Device Capability Detection', () => {
         }),
       } as unknown as WebGLRenderingContext;
 
-      jest.spyOn(mockCanvas, 'getContext').mockImplementation((contextId: string) => {
+      jest.spyOn(mockCanvas, 'getContext').mockImplementation(((contextId: string) => {
         if (contextId === 'webgl2') return null;
         if (contextId === 'webgl') return mockGL1;
         return null;
-      });
+      }) as typeof mockCanvas.getContext);
       createElementSpy.mockReturnValue(mockCanvas);
 
       const capabilities = detectDeviceCapabilities();
@@ -304,7 +304,7 @@ describe('Device Capability Detection', () => {
         }),
       } as unknown as WebGL2RenderingContext;
 
-      jest.spyOn(mockCanvas, 'getContext').mockReturnValue(mockGL2);
+      (jest.spyOn(mockCanvas, 'getContext') as jest.Mock).mockReturnValue(mockGL2);
       createElementSpy.mockReturnValue(mockCanvas);
 
       const capabilities = detectDeviceCapabilities();
@@ -327,7 +327,7 @@ describe('Device Capability Detection', () => {
         }),
       } as unknown as WebGL2RenderingContext;
 
-      jest.spyOn(mockCanvas, 'getContext').mockReturnValue(mockGL2);
+      (jest.spyOn(mockCanvas, 'getContext') as jest.Mock).mockReturnValue(mockGL2);
       createElementSpy.mockReturnValue(mockCanvas);
 
       const capabilities = detectDeviceCapabilities();
@@ -350,7 +350,7 @@ describe('Device Capability Detection', () => {
         }),
       } as unknown as WebGL2RenderingContext;
 
-      jest.spyOn(mockCanvas, 'getContext').mockReturnValue(mockGL2);
+      (jest.spyOn(mockCanvas, 'getContext') as jest.Mock).mockReturnValue(mockGL2);
       createElementSpy.mockReturnValue(mockCanvas);
 
       const capabilities = detectDeviceCapabilities();

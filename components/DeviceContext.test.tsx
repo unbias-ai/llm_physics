@@ -129,7 +129,7 @@ describe('DeviceContext', () => {
     it('should update capabilities when pixel ratio changes', async () => {
       let pixelRatioCallback: ((ratio: number) => void) | null = null;
 
-      (deviceDetector.createPixelRatioListener as jest.Mock).mockImplementation((cb) => {
+      (deviceDetector.createPixelRatioListener as jest.Mock).mockImplementation((cb: (ratio: number) => void) => {
         pixelRatioCallback = cb;
         return jest.fn();
       });
@@ -160,9 +160,8 @@ describe('DeviceContext', () => {
       });
 
       // Simulate pixel ratio change (user moves window to 2x display)
-      if (pixelRatioCallback) {
-        pixelRatioCallback(2);
-      }
+      expect(pixelRatioCallback).not.toBeNull();
+      pixelRatioCallback!(2);
 
       await waitFor(() => {
         expect(screen.getByTestId('pixel-ratio')).toHaveTextContent('2');
