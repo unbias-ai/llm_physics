@@ -1,0 +1,237 @@
+# GitHub Agent HQ - Agentic Code Review
+# Based on: github.blog/agent-hq (Nov 2025)
+# Integrates: Anthropic Claude + CodeQL results
+# NOTE: CodeQL runs separately in codeql.yml workflow
+
+name: Agent HQ Code Review
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
+jobs:
+  agentic-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          git diff ${{ github.event.pull_request.base.sha }}..${{ github.sha }} > pr-diff.txt
+          echo "Analyzing $(wc -l < pr-diff.txt) lines of changes"
+
+      - name: Download CodeQL SARIF (if available)
+        uses: dawidd6/action-download-artifact@v6
+        continue-on-error: true
+        with:
+          workflow: codeql.yml
+          name: codeql-sarif-javascript-typescript
+          path: sarif-download
+          if_no_artifact_found: ignore
+
+      - name: Prepare CodeQL results for AI review
+        run: |
+          if [ -f sarif-download/*.sarif ]; then
+            cp sarif-download/*.sarif codeql-results.sarif
+            echo "CodeQL results found"
+          else
+            echo '{"runs":[{"results":[]}]}' > codeql-results.sarif
+            echo "No CodeQL results available (workflow may still be running)"
+          fi
+
+      - name: AI Agent Review (Claude)
+        if: env.ANTHROPIC_API_KEY != ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cat > ai-review.mjs << 'EOF'
+          import Anthropic from '@anthropic-ai/sdk';
+          import fs from 'fs';
+
+          const diff = fs.readFileSync('pr-diff.txt', 'utf8');
+
+          let codeqlIssues = [];
+          try {
+            const sarif = JSON.parse(fs.readFileSync('codeql-results.sarif', 'utf8'));
+            codeqlIssues = sarif.runs[0]?.results || [];
+          } catch (e) {
+            console.log('No CodeQL results');
+          }
+
+          const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+          const prompt = `Review this PR diff for llmphysics.vercel.app (Next.js 16 + Three.js + Pyodide).
+
+          Focus areas:
+          1. Token bloat (>50k tokens in single file)
+          2. Emoji usage (strict ASCII-only policy)
+          3. Security issues (complement CodeQL findings)
+          4. Missing tests for new code
+          5. Performance anti-patterns (Three.js/WebGL specific)
+          6. Mobile optimization issues
+          7. TypeScript type safety
+
+          CodeQL found ${codeqlIssues.length} issues:
+          ${JSON.stringify(codeqlIssues.slice(0, 5), null, 2)}
+
+          Diff (truncated to 20k chars):
+          \`\`\`diff
+          ${diff.slice(0, 20000)}
+          \`\`\`
+
+          Return JSON array of issues:
+          {
+            "issues": [
+              {
+                "file": "path/to/file.ts",
+                "line": 42,
+                "severity": "critical|high|medium|low",
+                "category": "security|performance|testing|style|token-budget|types",
+                "issue": "description",
+                "suggestion": "how to fix"
+              }
+            ],
+            "summary": {
+              "criticalCount": 0,
+              "testCoverage": "estimated %",
+              "tokenBudget": "ok|warning|exceeded"
+            }
+          }`;
+
+          try {
+            const msg = await client.messages.create({
+              model: 'claude-3-7-sonnet-20250219',
+              max_tokens: 8000,
+              temperature: 0.3,
+              messages: [{ role: 'user', content: prompt }]
+            });
+
+            const responseText = msg.content[0].text;
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+
+            if (jsonMatch) {
+              const review = JSON.parse(jsonMatch[0]);
+              fs.writeFileSync('ai-review.json', JSON.stringify(review, null, 2));
+              console.log('AI review completed');
+            } else {
+              console.error('No JSON found in response');
+              process.exit(1);
+            }
+          } catch (error) {
+            console.error('AI review failed:', error);
+            process.exit(1);
+          }
+          EOF
+
+          node ai-review.mjs
+
+      - name: Post review comments
+        if: hashFiles('ai-review.json') != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const review = JSON.parse(fs.readFileSync('ai-review.json', 'utf8'));
+
+            // Sanitize text to prevent XSS
+            function sanitize(text) {
+              if (typeof text !== 'string') return String(text);
+              return text
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;')
+                .replace(/\//g, '&#x2F;');
+            }
+
+            // Post summary comment
+            const criticalCount = sanitize(review.summary?.criticalCount || 0);
+            const testCoverage = sanitize(review.summary?.testCoverage || 'N/A');
+            const tokenBudget = sanitize(review.summary?.tokenBudget || 'unknown');
+
+            const issueList = review.issues.slice(0, 10).map(issue => {
+              const severity = sanitize(String(issue.severity || 'unknown').toUpperCase());
+              const file = sanitize(issue.file || 'unknown');
+              const line = sanitize(issue.line || 0);
+              const description = sanitize(issue.issue || 'No description');
+              return `- **[${severity}]** \`${file}:${line}\` - ${description}`;
+            }).join('\n');
+
+            const summary = `## 🤖 Agent HQ Code Review
+
+            **Summary:**
+            - 🔴 Critical: ${criticalCount}
+            - 📊 Estimated Test Coverage: ${testCoverage}
+            - 💰 Token Budget: ${tokenBudget}
+
+            **Issues Found:** ${review.issues.length}
+
+            ${issueList}
+
+            ${review.issues.length > 10 ? `\n_...and ${review.issues.length - 10} more issues_` : ''}
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: summary
+            });
+
+            // Post inline comments for critical/high issues
+            for (const issue of review.issues.filter(i =>
+              ['critical', 'high'].includes(i.severity)
+            ).slice(0, 5)) {
+              try {
+                const severity = sanitize(String(issue.severity || 'unknown').toUpperCase());
+                const category = sanitize(issue.category || 'general');
+                const description = sanitize(issue.issue || 'No description');
+                const suggestion = sanitize(issue.suggestion || 'No suggestion');
+
+                await github.rest.pulls.createReviewComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: context.issue.number,
+                  body: `🤖 **${severity}** (${category})\n\n${description}\n\n💡 **Suggestion:** ${suggestion}`,
+                  path: issue.file,
+                  line: issue.line,
+                  side: 'RIGHT'
+                });
+              } catch (e) {
+                console.log('Could not post inline comment:', e.message);
+              }
+            }
+
+      - name: Block merge on critical issues
+        if: hashFiles('ai-review.json') != ''
+        run: |
+          CRITICAL=$(node -p "require('./ai-review.json').summary.criticalCount || 0")
+
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "❌ Found $CRITICAL critical issues. Blocking merge."
+            exit 1
+          fi
+
+      - name: Upload review artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-review
+          path: |
+            ai-review.json
+            pr-diff.txt
+            codeql-results.sarif

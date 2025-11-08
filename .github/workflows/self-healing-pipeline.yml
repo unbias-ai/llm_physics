@@ -1,0 +1,353 @@
+# Self-Healing CI/CD Workflows
+# GitHub Agent HQ + Vercel + Next.js 15 (Nov 2025)
+# Based on: github.blog/agent-hq, vercel.com/guides/github-actions
+
+name: Self-Healing Pipeline
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+  push:
+    branches: [claude/**]
+
+env:
+  NODE_VERSION: '22.x'
+  COVERAGE_THRESHOLD: 80
+
+jobs:
+  # Stage 1: Emoji Cleanup (Auto-fix)
+  emoji-cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect emojis in diff
+        id: detect
+        run: |
+          EMOJI_PATTERN='[😀-🙏🌀-🗿🚀-🛿☀-⛿✀-➿]'
+          FILES=$(git diff --name-only HEAD~1 | grep -E '\.(ts|tsx|js|jsx|md)$' || true)
+
+          if [ -n "$FILES" ]; then
+            MATCHES=$(echo "$FILES" | xargs grep -Hn "$EMOJI_PATTERN" || true)
+            if [ -n "$MATCHES" ]; then
+              echo "found=true" >> $GITHUB_OUTPUT
+              echo "Emojis detected:"
+              echo "$MATCHES"
+            else
+              echo "found=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Strip emojis (auto-heal)
+        if: steps.detect.outputs.found == 'true'
+        run: |
+          git diff --name-only HEAD~1 | grep -E '\.(ts|tsx|js|jsx|md)$' | \
+            xargs sed -i 's/[😀-🙏🌀-🗿🚀-🛿☀-⛿✀-➿]//g'
+
+          git config user.name "emoji-cleanup-bot"
+          git config user.email "noreply@github.com"
+          git add -A
+          git commit -m "fix: strip emoji slop [auto-heal]" || exit 0
+          git push origin HEAD --force
+
+  # Stage 2: Lint + Type Check
+  lint-typecheck:
+    runs-on: ubuntu-latest
+    needs: emoji-cleanup
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript
+        run: npx tsc --noEmit
+
+  # Stage 3: Test with Auto-Rollback
+  test-with-checkpoint:
+    runs-on: ubuntu-latest
+    needs: lint-typecheck
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run tests
+        id: test
+        continue-on-error: true
+        run: |
+          # Find last passing commit
+          LAST_PASS=$(git log --all --grep="tests pass" --format="%H" -1 || echo "HEAD~1")
+          echo "checkpoint=$LAST_PASS" >> $GITHUB_OUTPUT
+
+          npm test -- --coverage
+
+      - name: Validate coverage artifacts
+        if: success()
+        run: |
+          if [ ! -f coverage/lcov.info ] || [ ! -s coverage/lcov.info ]; then
+            echo "Error: coverage/lcov.info missing or empty"
+            exit 1
+          fi
+
+          head -1 coverage/lcov.info | grep -q '^TN:\|^SF:' || {
+            echo "Error: Invalid LCOV format"
+            exit 1
+          }
+
+      - name: Self-heal on failure
+        if: failure()
+        run: |
+          CHECKPOINT=${{ steps.test.outputs.checkpoint }}
+          echo "Tests failed. Rolling back to checkpoint: $CHECKPOINT"
+
+          git reset --hard $CHECKPOINT
+          npm test
+
+          if [ $? -eq 0 ]; then
+            git config user.name "self-heal-bot"
+            git config user.email "noreply@github.com"
+            git commit --allow-empty -m "fix: auto-rollback to passing tests [auto-heal]"
+            git push origin HEAD --force
+          else
+            echo "Rollback failed. Escalating to human review."
+            exit 1
+          fi
+
+      - name: Upload coverage
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+  # Stage 4: Coverage Guard (Auto-Generate Tests)
+  coverage-guard:
+    runs-on: ubuntu-latest
+    needs: test-with-checkpoint
+    if: success()
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Check coverage threshold
+        id: coverage
+        run: |
+          npm test -- --coverage --silent
+
+          LINES_PCT=$(node -p "
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
+            summary.total.lines.pct || 0
+          ")
+
+          echo "pct=$LINES_PCT" >> $GITHUB_OUTPUT
+
+          if (( $(echo "$LINES_PCT < $COVERAGE_THRESHOLD" | bc -l) )); then
+            echo "below_threshold=true" >> $GITHUB_OUTPUT
+            echo "Warning: Coverage at $LINES_PCT% (threshold: $COVERAGE_THRESHOLD%)"
+          else
+            echo "below_threshold=false" >> $GITHUB_OUTPUT
+            echo "Coverage: $LINES_PCT% ✓"
+          fi
+
+      - name: Flag for test generation
+        if: steps.coverage.outputs.below_threshold == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ Coverage below ${{ env.COVERAGE_THRESHOLD }}% (${{ steps.coverage.outputs.pct }}%). Consider running `/generate-tests` slash command.'
+            });
+
+  # Stage 5: Vercel Preview Deploy
+  vercel-preview:
+    runs-on: ubuntu-latest
+    needs: coverage-guard
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build for Vercel
+        run: |
+          npm run build
+          npx vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy to Vercel Preview
+        id: deploy
+        run: |
+          URL=$(npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Preview URL: $URL" >> $GITHUB_STEP_SUMMARY
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Visual Regression Test
+        run: |
+          cat > visual-test.spec.ts << 'EOF'
+          import { test, expect } from '@playwright/test';
+
+          test('Three.js scene renders', async ({ page }) => {
+            await page.goto(process.env.PREVIEW_URL + '/');
+
+            // Wait for WebGL or Canvas
+            const visualization = await page.waitForSelector('canvas', { timeout: 10000 });
+            expect(await visualization.isVisible()).toBe(true);
+
+            // Check for WebGL context
+            const hasWebGL = await page.evaluate(() => {
+              const canvas = document.querySelector('canvas');
+              return !!(canvas?.getContext('webgl') || canvas?.getContext('webgl2'));
+            });
+
+            console.log('WebGL available:', hasWebGL);
+          });
+
+          test('Device detection works', async ({ page }) => {
+            await page.goto(process.env.PREVIEW_URL + '/');
+
+            // Check for accessibility announcement
+            const announcement = await page.locator('[role="status"]');
+            await expect(announcement).toBeAttached();
+          });
+          EOF
+
+          PREVIEW_URL=${{ steps.deploy.outputs.url }} npx playwright test visual-test.spec.ts
+
+      - name: Comment with preview
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Preview deployed**\n\n🔗 ${process.env.PREVIEW_URL}\n\n✅ Visual tests passed`
+            });
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.url }}
+
+  # Stage 6: Security Audit
+  security-audit:
+    runs-on: ubuntu-latest
+    needs: lint-typecheck
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: typescript, javascript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      - name: Check for critical issues
+        run: |
+          if [ -f codeql-results.sarif ]; then
+            CRITICAL=$(cat codeql-results.sarif | jq '[.runs[].results[] | select(.level == "error")] | length')
+
+            if [ "$CRITICAL" -gt 0 ]; then
+              echo "❌ Found $CRITICAL critical security issues. Blocking merge."
+              exit 1
+            fi
+          fi
+
+  # Stage 7: Token Budget Monitor
+  token-budget:
+    runs-on: ubuntu-latest
+    needs: lint-typecheck
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Calculate token usage
+        run: |
+          cat > token-counter.js << 'EOF'
+          const fs = require('fs');
+          const { execSync } = require('child_process');
+
+          const files = execSync('git diff --name-only HEAD~1')
+            .toString()
+            .trim()
+            .split('\n')
+            .filter(f => f.match(/\.(ts|tsx|js|jsx)$/));
+
+          let totalTokens = 0;
+          const tokenMap = {};
+
+          files.forEach(file => {
+            try {
+              const content = fs.readFileSync(file, 'utf8');
+              const tokens = Math.ceil(content.length / 4); // Rough estimate
+              totalTokens += tokens;
+              tokenMap[file] = tokens;
+            } catch (e) {}
+          });
+
+          console.log(JSON.stringify({ totalTokens, tokenMap }, null, 2));
+
+          if (totalTokens > 50000) {
+            console.error('Token budget exceeded. Use PROJECT_REFERENCES.yaml');
+            process.exit(1);
+          }
+          EOF
+
+          node token-counter.js

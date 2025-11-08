@@ -14,6 +14,8 @@
 /coverage
 /playwright-report
 /test-results
+/screenshots/debug
+/screenshots/diffs
 
 # next.js
 /.next/
@@ -49,3 +51,4 @@ artifacts/audit_logs/*.jsonl
 # v2.0 External Diff Storage
 .diffs/*.diff
 .diffs/archive/*.diff
+coverage.json
