@@ -1,6 +1,7 @@
 # GitHub Agent HQ - Agentic Code Review
 # Based on: github.blog/agent-hq (Nov 2025)
-# Integrates: OpenAI Codex, Anthropic Claude, CodeQL
+# Integrates: Anthropic Claude + CodeQL results
+# NOTE: CodeQL runs separately in codeql.yml workflow
 
 name: Agent HQ Code Review
 on:
@@ -10,7 +11,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  security-events: read
+  actions: read
 
 jobs:
   agentic-review:
@@ -33,31 +34,23 @@ jobs:
           git diff ${{ github.event.pull_request.base.sha }}..${{ github.sha }} > pr-diff.txt
           echo "Analyzing $(wc -l < pr-diff.txt) lines of changes"
 
-      - name: Run CodeQL for security context
-        uses: github/codeql-action/init@v3
+      - name: Download CodeQL SARIF (if available)
+        uses: dawidd6/action-download-artifact@v6
+        continue-on-error: true
         with:
-          languages: javascript
-          queries: security-extended
-        continue-on-error: true
+          workflow: codeql.yml
+          name: codeql-sarif-javascript-typescript
+          path: sarif-download
+          if_no_artifact_found: ignore
 
-      - uses: github/codeql-action/autobuild@v3
-        continue-on-error: true
-
-      - name: CodeQL Analysis
-        id: codeql
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:javascript"
-          upload: false
-          output: sarif-results
-        continue-on-error: true
-
-      - name: Copy SARIF for AI review
+      - name: Prepare CodeQL results for AI review
         run: |
-          if [ -d sarif-results ]; then
-            cp sarif-results/*.sarif codeql-results.sarif 2>/dev/null || echo '{"runs":[{"results":[]}]}' > codeql-results.sarif
+          if [ -f sarif-download/*.sarif ]; then
+            cp sarif-download/*.sarif codeql-results.sarif
+            echo "CodeQL results found"
           else
             echo '{"runs":[{"results":[]}]}' > codeql-results.sarif
+            echo "No CodeQL results available (workflow may still be running)"
           fi
 
       - name: AI Agent Review (Claude)
@@ -81,15 +74,16 @@ jobs:
 
           const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-          const prompt = `Review this PR diff for llmphysics.vercel.app (Next.js 15 + Three.js + d3.js).
+          const prompt = `Review this PR diff for llmphysics.vercel.app (Next.js 16 + Three.js + Pyodide).
 
           Focus areas:
           1. Token bloat (>50k tokens in single file)
           2. Emoji usage (strict ASCII-only policy)
           3. Security issues (complement CodeQL findings)
           4. Missing tests for new code
-          5. Performance anti-patterns (Three.js/d3.js specific)
+          5. Performance anti-patterns (Three.js/WebGL specific)
           6. Mobile optimization issues
+          7. TypeScript type safety
 
           CodeQL found ${codeqlIssues.length} issues:
           ${JSON.stringify(codeqlIssues.slice(0, 5), null, 2)}
@@ -106,7 +100,7 @@ jobs:
                 "file": "path/to/file.ts",
                 "line": 42,
                 "severity": "critical|high|medium|low",
-                "category": "security|performance|testing|style|token-budget",
+                "category": "security|performance|testing|style|token-budget|types",
                 "issue": "description",
                 "suggestion": "how to fix"
               }

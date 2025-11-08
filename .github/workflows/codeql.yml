@@ -1,0 +1,89 @@
+# CodeQL Security Analysis
+# Disable GitHub's "Default Setup" in Settings → Code security → CodeQL analysis
+# This advanced configuration provides comprehensive security scanning
+
+name: "CodeQL Security Scan"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '27 2 * * 6'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ javascript-typescript ]
+        # CodeQL supports: c-cpp, csharp, go, java-kotlin, javascript-typescript, python, ruby, rust, swift
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-extended,security-and-quality
+        # Enables comprehensive security queries including:
+        # - XSS detection (stored, reflected, DOM-based)
+        # - SQL injection
+        # - Command injection
+        # - Path traversal
+        # - Unsafe deserialization
+        config: |
+          name: "CodeQL Config"
+          disable-default-queries: false
+          queries:
+            - uses: security-extended
+            - uses: security-and-quality
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{ matrix.language }}"
+        upload: true
+        # SARIF results uploaded to GitHub Security tab
+        output: sarif-results
+
+    - name: Upload SARIF as artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: codeql-sarif-${{ matrix.language }}
+        path: sarif-results
+        retention-days: 30
+
+    - name: Check for critical findings
+      if: always()
+      run: |
+        if [ -f sarif-results/*.sarif ]; then
+          CRITICAL=$(jq '[.runs[].results[] | select(.level == "error")] | length' sarif-results/*.sarif)
+          echo "Critical findings: $CRITICAL"
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "⚠️  $CRITICAL critical security issues found"
+            echo "Review at: https://github.com/${{ github.repository }}/security/code-scanning"
+          fi
+        fi
