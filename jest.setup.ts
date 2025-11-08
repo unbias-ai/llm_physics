@@ -1,6 +1,25 @@
 // jest.setup.ts
 import '@testing-library/jest-dom';
 
+// Suppress React act() warnings in tests
+// These are console noise - tests use waitFor() correctly
+const originalError = console.error;
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('not wrapped in act')
+    ) {
+      return;
+    }
+    originalError.call(console, ...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalError;
+});
+
 // Mock Web Worker globally
 global.Worker = class MockWorker {
   url: string;

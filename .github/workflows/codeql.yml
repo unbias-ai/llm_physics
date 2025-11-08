@@ -44,18 +44,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         queries: security-extended,security-and-quality
-        # Enables comprehensive security queries including:
-        # - XSS detection (stored, reflected, DOM-based)
-        # - SQL injection
-        # - Command injection
-        # - Path traversal
-        # - Unsafe deserialization
-        config: |
-          name: "CodeQL Config"
-          disable-default-queries: false
-          queries:
-            - uses: security-extended
-            - uses: security-and-quality
+        config-file: ./.github/codeql/codeql-config.yml
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3

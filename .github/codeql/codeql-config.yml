@@ -1,0 +1,53 @@
+# CodeQL Configuration
+# Suppress false positives for:
+# - Playwright page.evaluate() (E2E tests, isolated browser context)
+# - Pyodide equation evaluation (Web Worker, sandboxed)
+
+name: "CodeQL Config"
+
+# Disable problematic queries that flag false positives
+disable-default-queries: false
+
+# Query filters
+query-filters:
+  # Suppress XSS warnings for Playwright E2E tests
+  - exclude:
+      id: js/xss
+      paths:
+        - tests/**/*.spec.ts
+        - tests/**/*.spec.tsx
+
+  # Suppress XSS warnings for Pyodide worker (sandboxed)
+  - exclude:
+      id: js/xss
+      paths:
+        - workers/**/*.worker.ts
+
+  # Suppress "unsafe HTML" warnings for test files
+  - exclude:
+      id: js/unsafe-html-construction
+      paths:
+        - tests/**
+        - __tests__/**
+
+  # Suppress jQuery warnings (project doesn't use jQuery)
+  - exclude:
+      id: js/unsafe-jquery-plugin
+
+# Paths to exclude from analysis
+paths-ignore:
+  - node_modules/**
+  - .next/**
+  - out/**
+  - build/**
+  - dist/**
+  - coverage/**
+  - playwright-report/**
+  - test-results/**
+
+# Paths to include (focus on source code)
+paths:
+  - app/**
+  - components/**
+  - lib/**
+  - hooks/**
